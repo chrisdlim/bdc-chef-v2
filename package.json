@@ -1,0 +1,21 @@
+{
+  "name": "bdc-chef-v2",
+  "version": "1.0.0",
+  "description": "bdc-chef-v2 discord bot",
+  "main": "index.js",
+  "dependencies": {
+    "@discordjs/builders": "^1.4.0",
+    "discord.js": "^14.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.2",
+    "dotenv": "^16.0.3",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "nodemon"
+  },
+  "author": "",
+  "license": "ISC"
+}
