@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "start": "nodemon"
+    "start:dev": "nodemon",
+    "start": "node ./dist/index.js"
   },
   "author": "",
   "license": "ISC"
