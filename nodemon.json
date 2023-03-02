@@ -2,6 +2,6 @@
   "watch": ["src"],
   "ext": "ts,json",
   "ignore": ["src/**/*.spec.ts"],
-  "exec": "tsc -w & ts-node ./src/index.ts",
+  "exec": "tsc -w & ts-node -r dotenv/config ./src/index.ts",
   "verbose": true
 }

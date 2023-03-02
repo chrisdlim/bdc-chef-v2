@@ -1,4 +1,3 @@
-require('dotenv').config();
 import { initBot } from './bot';
 
 const TOKEN = process.env.TOKEN;
