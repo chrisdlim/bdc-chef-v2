@@ -11,6 +11,7 @@ export const initBot = async (token: string): Promise<void> => {
       IntentsBitField.Flags.GuildMessages,
       IntentsBitField.Flags.GuildMembers,
       IntentsBitField.Flags.MessageContent,
+      IntentsBitField.Flags.GuildVoiceStates
     ]
   });
 
