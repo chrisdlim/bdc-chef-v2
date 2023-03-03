@@ -7,6 +7,7 @@ import { Test } from "./test";
 import { Inhouse } from "./inhouse";
 import { Command } from "./types";
 import { Roll } from "./roll";
+import { Ltg } from './ltg';
 
 export const commands: Command[] = [
   Ping,
@@ -15,7 +16,8 @@ export const commands: Command[] = [
   Cookoff,
   Roll,
   Oops,
-  Inhouse
+  Inhouse,
+  Ltg,
 ];
 
 export const registerApplicationCommands = (client: Client<true>) => {
