@@ -1,5 +1,11 @@
-import { AutocompleteInteraction, ChatInputCommandInteraction, Client, Events, Interaction } from "discord.js";
-import { findCommandByInteraction } from './commands';
+import {
+  AutocompleteInteraction,
+  ChatInputCommandInteraction,
+  Client,
+  Events,
+  Interaction,
+} from "discord.js";
+import { findCommandByInteraction } from "./commands";
 
 export const registerInteractions = (client: Client): void => {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
@@ -12,18 +18,24 @@ export const registerInteractions = (client: Client): void => {
   });
 };
 
-const handleCommand = async (client: Client, interaction: ChatInputCommandInteraction): Promise<void> => {
+const handleCommand = async (
+  client: Client,
+  interaction: ChatInputCommandInteraction
+): Promise<void> => {
   const command = findCommandByInteraction(interaction);
 
   if (!command) {
-    await interaction.followUp({ content: 'Unhandled command!' });
+    await interaction.followUp({ content: "Unhandled command!" });
     return;
   } else {
     await command.run(client, interaction);
   }
 };
 
-const handleAutoComplete = async (_client: Client, interaction: AutocompleteInteraction): Promise<void> => {
+const handleAutoComplete = async (
+  _client: Client,
+  interaction: AutocompleteInteraction
+): Promise<void> => {
   const command = findCommandByInteraction(interaction);
 
   if (!command) {
@@ -38,11 +50,10 @@ const handleAutoComplete = async (_client: Client, interaction: AutocompleteInte
 
     if (name in commandAutoCompleteConfig) {
       const choices = commandAutoCompleteConfig[name]();
-      const filtered = choices.filter(choice => choice.startsWith(value));
+      const filtered = choices.filter((choice) => choice.startsWith(value));
       await interaction.respond(
-        filtered.map(choice => ({ name: choice, value: choice })),
+        filtered.map((choice) => ({ name: choice, value: choice }))
       );
     }
   }
-
-}
+};

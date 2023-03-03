@@ -1,4 +1,3 @@
-
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
@@ -6,18 +5,15 @@ import {
   Client,
 } from "discord.js";
 import { SystemError } from "../../error/system-error";
-import {
-  QueueActions,
-  QueueOptionNames
-} from "./utils";
+import { QueueActions, QueueOptionNames } from "./constants";
 import { Command } from "../types";
 import { InMemQueue } from "./in-mem-queue";
 
 const queue = new InMemQueue();
 
 export const Queue: Command = {
-  name: 'queue',
-  description: 'Queue commands',
+  name: "queue",
+  description: "Queue commands",
   type: ApplicationCommandType.ChatInput,
   autocompleteConfig: {
     [QueueOptionNames.ACTION]: () => Object.values(QueueActions),
@@ -26,14 +22,14 @@ export const Queue: Command = {
   options: [
     {
       name: QueueOptionNames.ACTION,
-      description: 'Queue action',
+      description: "Queue action",
       type: ApplicationCommandOptionType.String,
       required: true,
       autocomplete: true,
     },
     {
       name: QueueOptionNames.NAME,
-      description: 'Name of queue',
+      description: "Name of queue",
       type: ApplicationCommandOptionType.String,
       required: false,
       autocomplete: true,
@@ -54,5 +50,5 @@ export const Queue: Command = {
 
       throw error;
     }
-  }
-}
+  },
+};

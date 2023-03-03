@@ -11,5 +11,5 @@ export class SystemError extends Error {
       content: italicize(this.message),
       ephemeral: true,
     });
-  }
+  };
 }
