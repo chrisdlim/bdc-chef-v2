@@ -1,4 +1,5 @@
 import { ChatInputCommandInteraction } from "discord.js";
+import { italicize } from "../utils/text";
 
 export class SystemError extends Error {
   constructor(message: string) {
@@ -7,7 +8,7 @@ export class SystemError extends Error {
 
   handle = async (interaction: ChatInputCommandInteraction) => {
     await interaction.reply({
-      content: this.message,
+      content: italicize(this.message),
       ephemeral: true,
     });
   }

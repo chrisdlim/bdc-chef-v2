@@ -20,8 +20,8 @@ export const Queue: Command = {
   description: 'Queue commands',
   type: ApplicationCommandType.ChatInput,
   autocompleteConfig: {
-    [QueueOptionNames.ACTION]: Object.values(QueueActions),
-    [QueueOptionNames.NAME]: queue.getCurrentQueueNames(),
+    [QueueOptionNames.ACTION]: () => Object.values(QueueActions),
+    [QueueOptionNames.NAME]: () => queue.getCurrentQueueNames(),
   },
   options: [
     {

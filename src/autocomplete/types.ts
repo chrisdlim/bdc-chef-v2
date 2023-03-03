@@ -1,3 +1,3 @@
 export type CommandOptionsAutoCompleteConfig = {
-  [option: string | number]: string[];
+  [option: string | number]: () => string[];
 }

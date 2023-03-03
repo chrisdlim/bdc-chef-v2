@@ -2,7 +2,7 @@ export const QueueActions = {
   SHOW: 'show',
   START: 'start',
   JOIN: 'join',
-  CLEAR: 'clear',
+  DELETE: 'delete',
   LEAVE: 'leave',
 } as const;
 

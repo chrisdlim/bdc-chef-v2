@@ -23,10 +23,11 @@ const handleCommand = async (client: Client, interaction: ChatInputCommandIntera
   }
 };
 
-const handleAutoComplete = async (client: Client, interaction: AutocompleteInteraction): Promise<void> => {
+const handleAutoComplete = async (_client: Client, interaction: AutocompleteInteraction): Promise<void> => {
   const command = findCommandByInteraction(interaction);
 
   if (!command) {
+    await interaction.respond([]);
     return;
   }
 
@@ -36,7 +37,7 @@ const handleAutoComplete = async (client: Client, interaction: AutocompleteInter
     const { value, name } = interaction.options.getFocused(true);
 
     if (name in commandAutoCompleteConfig) {
-      const choices = commandAutoCompleteConfig[name];
+      const choices = commandAutoCompleteConfig[name]();
       const filtered = choices.filter(choice => choice.startsWith(value));
       await interaction.respond(
         filtered.map(choice => ({ name: choice, value: choice })),
