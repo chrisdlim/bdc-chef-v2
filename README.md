@@ -19,12 +19,7 @@ create a .env file
 touch .env
 ```
 
-Add the following into the .env file. Replace <> with the API tokens (excluding bracket)
-```
-TOKEN=<DISCORD_TOKEN_HERE>
-GIPHY_<GIPHY_API_TOKEN_HERE>
-EASTER_EGG_NAMES=eric6971,chad5396,g-sing2234
-```
+Rename the .env file if needed and add the appropriate API keys to the .env file
 
 Run nodemon
 ```
