@@ -1,4 +1,5 @@
 import { ApplicationCommandType, ChatInputCommandInteraction, Client, Collection, GuildMember } from 'discord.js';
+import { getUserAsMention } from '../utils/user';
 import { getVoiceChannelByInteraction } from '../utils/voice-channel';
 import { Command } from './types';
 
@@ -29,7 +30,9 @@ export const Cookoff: Command = {
     }
 
     const [firstUser, secondUser] = getTwoChefs(members.clone());
+    const firstMention = getUserAsMention(firstUser!);
+    const secondMention = getUserAsMention(secondUser!);
 
-    await interaction.reply(`We got a cook-off on our hands! <@${firstUser?.id}> vs. <@${secondUser?.id}>`);
+    await interaction.reply(`We got a cook-off on our hands! ${firstMention} vs. ${secondMention}`);
   }
 };
