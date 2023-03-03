@@ -18,7 +18,7 @@ export const Roll : Command = {
     ],
     run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
         const options = interaction.options.getInteger("maxrollvalue")
-        const inputMaxRollValue = options != null ? options : 20;
+        const inputMaxRollValue = options || 20;
         const randomValue = getRandomNumberWithMaxVal(inputMaxRollValue);
 
         await interaction.reply(`${interaction.member?.user.username} rolled a ${randomValue} out of ${inputMaxRollValue}`);
