@@ -1,4 +1,5 @@
 export const QueueActions = {
+  LIST: 'list',
   SHOW: "show",
   START: "start",
   JOIN: "join",

@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction, User } from "discord.js";
 import { SystemError } from "../../error/system-error";
 import { getUserAsMention } from "../../utils/user";
 import { QueueActions } from "./constants";
-import { bold } from "../../utils/text";
+import { bold, numberedList } from "../../utils/text";
 
 export class InMemQueue {
   private inMemQueues = new Map<string, Set<string>>();
@@ -24,7 +24,7 @@ export class InMemQueue {
     const queueMembers = this.getMembersByQueueName(name);
     return [
       `Current queue: ${bold(name)}`,
-      ...queueMembers.map((value, index) => `${index + 1}. ${value}`),
+      numberedList(queueMembers)
     ].join("\n");
   };
 
@@ -40,6 +40,9 @@ export class InMemQueue {
   ) => {
     const { user } = interaction;
     switch (action) {
+      case QueueActions.LIST:
+        await this.listQueues(interaction);
+        break;
       case QueueActions.START:
         if (!this.isQueueNameTaken(queueName)) return;
         await this.startQueue(queueName, interaction);
@@ -69,6 +72,15 @@ export class InMemQueue {
   };
 
   // Queue actions
+
+  private listQueues = async (interaction: ChatInputCommandInteraction) => {
+    const queues = this.getCurrentQueueNames();
+    const content = [
+      'Current queues:',
+      numberedList(queues)
+    ].join('\n');
+    await interaction.reply(content);
+  }
 
   private startQueue = async (
     name: string | null,
