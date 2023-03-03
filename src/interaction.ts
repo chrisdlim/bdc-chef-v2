@@ -6,7 +6,6 @@ export const registerInteractions = (client: Client): void => {
     if (interaction.isChatInputCommand()) {
       await handleCommand(client, interaction);
     }
-
     if (interaction.isAutocomplete()) {
       await handleAutoComplete(client, interaction);
     }

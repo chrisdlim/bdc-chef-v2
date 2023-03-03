@@ -1,0 +1,1 @@
+export const bold = (text: string) => `**${text}**`;
