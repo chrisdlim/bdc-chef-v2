@@ -4,6 +4,7 @@ import { LetHimCook } from "./let-him-cook";
 import { Oops } from "./oops";
 import { Ping } from "./ping";
 import { Test } from "./test";
+import { Inhouse } from "./inhouse";
 import { Command } from "./types";
 
 export const commands: Command[] = [
@@ -12,6 +13,7 @@ export const commands: Command[] = [
   LetHimCook,
   Cookoff,
   Oops,
+  Inhouse
 ];
 
 export const registerApplicationCommands = (client: Client<true>) => {

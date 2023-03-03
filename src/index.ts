@@ -1,9 +1,9 @@
-import { initBot } from './bot';
+import { initBot } from "./bot";
 
 const TOKEN = process.env.TOKEN;
 
 if (!TOKEN) {
-  throw new Error('Discord token required!');
+  throw new Error("Discord token required!");
 }
 
 (async () => {
