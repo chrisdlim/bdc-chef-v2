@@ -1,6 +1,6 @@
 import { ApplicationCommandType, ChatInputCommandInteraction, Client } from 'discord.js';
 import { getGiphyBySearch } from '../giphy/api';
-import getRandomElement from '../utils/get-random-element';
+import { getRandomElement } from '../utils/random';
 import { Command } from './types';
 
 export const Oops: Command = {

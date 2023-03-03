@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, Client } from "discord.js";
+import { getRandomNumberWithMaxVal } from "../utils/random";
 import { Command } from "./types";
-import { getRandomNumberWithMaxVal } from "../utils/get-random-number";
 
 
 export const Roll : Command = {

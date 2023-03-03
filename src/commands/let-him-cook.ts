@@ -1,5 +1,5 @@
 import { ApplicationCommandType, ChatInputCommandInteraction, Client } from 'discord.js';
-import getRandomElement from '../utils/get-random-element';
+import { getRandomElement } from '../utils/random';
 import { getVoiceChannelByInteraction } from '../utils/voice-channel';
 import { Command } from './types';
 

@@ -43,6 +43,7 @@ export const Queue: Command = {
     },
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
+    console.log(interaction.user);
     await interaction.reply('Testing');
   }
 }
