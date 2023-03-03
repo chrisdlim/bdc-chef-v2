@@ -5,12 +5,14 @@ import { Oops } from "./oops";
 import { Ping } from "./ping";
 import { Test } from "./test";
 import { Command } from "./types";
+import { Roll } from "./roll";
 
 export const commands: Command[] = [
   Ping,
   Test,
   LetHimCook,
   Cookoff,
+  Roll,
   Oops,
 ];
 
