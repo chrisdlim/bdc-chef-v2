@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionBase, ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, Client } from "discord.js";
+import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, Client } from "discord.js";
 import { Command } from "./types";
 import { getRandomNumberWithMaxVal } from "../utils/get-random-number";
 
