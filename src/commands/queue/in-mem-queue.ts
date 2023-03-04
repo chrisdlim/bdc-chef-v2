@@ -1,8 +1,11 @@
 import { ChatInputCommandInteraction, User } from "discord.js";
-import { getUserAsMention } from "../../utils/user";
+import { getUserAsMention, getUserWithDiscriminator } from "../../utils/user";
 import { QueueActions } from "./constants";
 import { bold, numberedList } from "../../utils/text";
 import { SystemError } from "../../error/system-error";
+
+// Move this to a config file pls chris
+const easterEggNames = process.env.EASTER_EGG_NAMES?.split(',');
 
 type HandleActionParams = {
   action: string | null;
@@ -13,7 +16,7 @@ class Queue {
   constructor(
     public members: Set<string> = new Set<string>(),
     public size: number = 5
-  ) {}
+  ) { }
 
   get isFull() {
     return this.size === this.members.size;
@@ -41,9 +44,8 @@ export class InMemQueue {
     const remainingSlots = this.inMemQueue.size - this.inMemQueue.members.size;
     const baseMessage =
       message ||
-      `${bold(this.queueName)}. ${
-        remainingSlots ? `Looking for ${remainingSlots} more gamer(s)!` : ""
-      }`.trim();
+      `${bold(this.queueName)}. ${remainingSlots ? `Looking for ${remainingSlots} more gamer(s)!` : ""
+        }`.trim();
     return [baseMessage, this.getQueueMembersList()].join("\n");
   };
 
@@ -117,13 +119,18 @@ export class InMemQueue {
   };
 
   private joinQueue = async (interaction: ChatInputCommandInteraction) => {
-    this.addUserToQueue(interaction.user);
-    const content = this.getCurrentQueueMembersMessage();
-    await interaction.reply(content);
+    const { user } = interaction;
 
-    if (this.inMemQueue.isFull) {
-      await interaction.editReply(this.getQueueReadyAnnouncement());
-    }
+    this.addUserToQueue(user);
+
+    console.log('full?', this.inMemQueue.isFull)
+    const getContent = this.inMemQueue.isFull ? this.getQueueReadyAnnouncement : this.getCurrentQueueMembersMessage;
+
+    const easterEggMsg = easterEggNames?.includes(getUserWithDiscriminator(user)) ?
+      `Btw, your meals taste like ass ${getUserAsMention(user)}` : ''
+
+    const content = [getContent(), easterEggMsg].join('\n');
+    await interaction.reply(content);
   };
 
   private leaveQueue = async (interaction: ChatInputCommandInteraction) => {
