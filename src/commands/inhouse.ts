@@ -7,7 +7,10 @@ import {
 
 import { getVoiceChannelByInteraction } from "../utils/voice-channel";
 import { Command } from "./types";
-import { generateRandomParticipants, inhouseMatchmaking } from "../utils/match-making";
+import {
+  generateRandomParticipants,
+  inhouseMatchmaking,
+} from "../utils/match-making";
 
 export const Inhouse: Command = {
   name: "inhouse",
@@ -26,7 +29,7 @@ export const Inhouse: Command = {
     // const yoink = members.map(i => i.user.id)
 
     // // Get username of all VC users
-    let vcMembers: string[] = members.map(i => i.user.username);
+    let vcMembers: string[] = members.map((i) => i.user.username);
     // let vcMembers: string[] = [];
 
     // Auto-generate at least 10 for testing purposes
