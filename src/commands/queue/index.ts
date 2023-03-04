@@ -27,21 +27,20 @@ export const Queue: Command = {
       name: QueueOptionNames.ACTION,
       description: "Queue action",
       type: ApplicationCommandOptionType.String,
-      required: true,
       autocomplete: true,
+      required: false,
     },
     {
       name: QueueOptionNames.NAME,
       description: "Name of queue",
       type: ApplicationCommandOptionType.String,
-      required: false,
       autocomplete: true,
+      required: false,
     },
     {
       name: QueueOptionNames.SIZE,
       description: "Size of the queue",
       type: ApplicationCommandOptionType.Integer,
-      required: false,
     },
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {

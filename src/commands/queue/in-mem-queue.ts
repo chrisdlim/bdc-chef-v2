@@ -45,10 +45,11 @@ export class InMemQueue {
     return numberedList(queueMembers);
   }
 
-  private getCurrentQueueMembersMessage = (name: string, remainingSlots?: number) => {
-    const baseMessage = 
-      `Current queue: ${bold(name)}. ${remainingSlots ? 
-          `Looking for ${remainingSlots} more gamers!` : ''}`.trim()
+  private getCurrentQueueMembersMessage = (name: string, queue?: Queue | null) => {
+    const remainingSlots = queue?.size ? queue.size - queue.members.size : 0;
+    const baseMessage =
+      `Current queue: ${bold(name)}. ${remainingSlots ?
+        `Looking for ${remainingSlots} more gamer(s)!` : ''}`.trim()
     return [
       baseMessage,
       this.getQueueMembersList(name),
@@ -57,7 +58,7 @@ export class InMemQueue {
 
   private getQueueReadyAnnouncement = (name: string) => {
     return [
-      `OOOOOORDER UP, "${bold(name)}" is ready to roll!`,
+      `OOOOORDER UP, "${bold(name)}" is ready to roll!`,
       this.getQueueMembersList(name),
     ].join('\n');
   };
@@ -70,13 +71,10 @@ export class InMemQueue {
   private getActionOrDefault = (action: string | null) => {
     if (action) return action;
 
-      // If no action and there are queues, then have user join the first queue
-      if (this.inMemQueues.size) {
-        return QueueActions.JOIN;
-      }
-      // Else, user is creating the first queue
-      return QueueActions.START;
-    }
+    // If no action and there are queues, then have user join the first queue
+    // else, user is creating the first queue
+    return this.inMemQueues.size ? QueueActions.JOIN : QueueActions.START
+  }
 
   handleAction = async (
     interaction: ChatInputCommandInteraction,
@@ -100,10 +98,23 @@ export class InMemQueue {
         await this.showQueue(queueName, interaction);
         break;
       case QueueActions.JOIN:
+        // Edge case where user is defaulting to join first queue
+        if (!action) {
+          if (!this.inMemQueues.size) {
+            throw new SystemError(`Whoops, looks like we got no chefs today. NOBODY'S COOKIN' (sorry, no queues).`)
+          }
+
+          const [firstQueueName] = this.inMemQueues.entries().next().value as [string, Queue];
+
+          this.verifyUserNotInQueue(user, firstQueueName);
+          await this.joinQueue(firstQueueName, interaction);
+          break;
+        }
+
         if (!this.verifyQueueNameIsProvided(queueName)) return;
         this.verifyQueueExists(queueName);
         this.verifyUserNotInQueue(user, queueName);
-        await this.joinQueue(queueName!, interaction);
+        await this.joinQueue(queueName, interaction);
         break;
       case QueueActions.LEAVE:
         if (!this.verifyQueueNameIsProvided(queueName)) return;
@@ -147,7 +158,7 @@ export class InMemQueue {
     );
 
     this.inMemQueues.set(queueNameOrDefault, queue);
-    const content = this.getCurrentQueueMembersMessage(queueNameOrDefault);
+    const content = this.getCurrentQueueMembersMessage(queueNameOrDefault, queue);
 
     await interaction.reply(content);
   };
@@ -157,7 +168,7 @@ export class InMemQueue {
     interaction: ChatInputCommandInteraction
   ) => {
     const content = this.getCurrentQueueMembersMessage(name);
-    await interaction.reply(content);
+    await interaction.reply({ content, ephemeral: true });
   };
 
   private joinQueue = async (
@@ -169,12 +180,11 @@ export class InMemQueue {
     const queue = this.inMemQueues.get(name);
     queue?.members.add(getUserAsMention(user));
 
-    const content = this.getCurrentQueueMembersMessage(name);
+    const content = this.getCurrentQueueMembersMessage(name, queue);
     await interaction.reply(content);
 
-    if (queue?.isFull) {
+    if (queue?.size && queue?.isFull) {
       await interaction.editReply(this.getQueueReadyAnnouncement(name));
-      await interaction.reply('alskdjasdlkasd');
     }
   };
 
@@ -188,7 +198,7 @@ export class InMemQueue {
 
     // If still has remaining members in queue, then return list of members
     if (queue?.members.size) {
-      const content = this.getCurrentQueueMembersMessage(name);
+      const content = this.getCurrentQueueMembersMessage(name, queue);
       await interaction.reply(content);
     } else {
       // Close the queue if everyone left
