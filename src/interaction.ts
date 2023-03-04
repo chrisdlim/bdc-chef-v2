@@ -22,13 +22,22 @@ const handleCommand = async (
   client: Client,
   interaction: ChatInputCommandInteraction
 ): Promise<void> => {
-  const command = findCommandByInteraction(interaction);
+  try {
+    const command = findCommandByInteraction(interaction);
 
-  if (!command) {
-    await interaction.followUp({ content: "Unhandled command!" });
-    return;
-  } else {
-    await command.run(client, interaction);
+    if (!command) {
+      await interaction.reply({
+        content: `Oops, I can't cook that right now. [${interaction.commandName}]`,
+        ephemeral: true,
+      });
+      return;
+    } else {
+      await command.run(client, interaction);
+    }
+  } catch (error) {
+    console.log('Received error when handling command', {
+      error, interaction
+    })
   }
 };
 
@@ -36,15 +45,21 @@ const handleAutoComplete = async (
   _client: Client,
   interaction: AutocompleteInteraction
 ): Promise<void> => {
-  const command = findCommandByInteraction(interaction);
+  try {
 
+    const command = findCommandByInteraction(interaction);
 
-  if (!command) {
-    await interaction.respond([]);
-    return;
-  }
+    if (!command) {
+      await interaction.respond([]);
+      return;
+    }
 
-  if (command.handleAutoComplete) {
-    await command.handleAutoComplete(interaction);
+    if (command.handleAutoComplete) {
+      await command.handleAutoComplete(interaction);
+    }
+  } catch (error) {
+    console.log('Received error when handling autocomplete', {
+      error, interaction
+    })
   }
 };
