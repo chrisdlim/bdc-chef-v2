@@ -12,6 +12,7 @@ import { Inhouse } from "./inhouse";
 import { Command } from "./types";
 import { Roll } from "./roll";
 import { Queue } from "./queue";
+import { Ltg } from "./ltg";
 
 export const commands: Command[] = [
   Ping,
