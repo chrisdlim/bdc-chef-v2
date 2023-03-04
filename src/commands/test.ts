@@ -10,6 +10,6 @@ export const Test: Command = {
   description: "My test",
   type: ApplicationCommandType.ChatInput,
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
-    await interaction.reply("Testing success v1!");
+    await interaction.reply(`<@${139238040764678145} needs MILK`);
   },
 };
