@@ -74,29 +74,29 @@ export class InMemQueue {
         await this.listQueues(interaction);
         break;
       case QueueActions.START:
-        if (!this.isQueueNameTaken(queueName)) return;
+        this.verifyQueueNameIsAvailable(queueName);
         await this.startQueue(queueName, queueSize, interaction);
         break;
       case QueueActions.SHOW:
-        if (!this.isQueueNameProvided(queueName)) return;
-        if (!this.doesQueueExist(queueName)) return;
+        this.verifyQueueNameIsProvided(queueName);
+        this.verifyQueueExists(queueName);
         await this.showQueue(queueName, interaction);
         break;
       case QueueActions.JOIN:
-        if (!this.isQueueNameProvided(queueName)) return;
-        if (!this.doesQueueExist(queueName)) return;
-        this.isUserNotInQueue(user, queueName);
+        this.verifyQueueNameIsProvided(queueName);
+        this.verifyQueueExists(queueName);
+        this.verifyUserNotInQueue(user, queueName);
         await this.joinQueue(queueName, interaction);
         break;
       case QueueActions.LEAVE:
-        if (!this.isQueueNameProvided(queueName)) return;
-        if (!this.doesQueueExist(queueName)) return;
-        if (!this.isUserInQueue(user, queueName)) return;
+        this.verifyQueueNameIsProvided(queueName);
+        this.verifyQueueExists(queueName);
+        this.verifyUserIsInQueue(user, queueName);
         await this.leaveQueue(queueName, interaction);
         break;
       case QueueActions.DELETE:
-        if (!this.isQueueNameProvided(queueName)) return;
-        if (!this.doesQueueExist(queueName)) return;
+        this.verifyQueueNameIsProvided(queueName);
+        this.verifyQueueExists(queueName);
         await this.deleteQueue(queueName, interaction);
         break;
       default:
@@ -193,46 +193,39 @@ export class InMemQueue {
 
   // Queue validation
 
-  private isQueueNameProvided = (name: string | null): name is string => {
+  private verifyQueueNameIsProvided = (name: string | null): name is string => {
     if (!name) {
       throw new SystemError("Provide a queue name.");
     }
-    return true;
   };
 
-  private doesQueueExist = (name: string) => {
+  private verifyQueueExists = (name: string) => {
     if (!this.getQueue(name)) {
       throw new SystemError(`${name} does not exist.`);
     }
-    return true;
   };
 
-  private isQueueNameTaken = (name: string | null) => {
+  private verifyQueueNameIsAvailable = (name: string | null) => {
     if (name && !!this.getQueue(name)) {
       throw new SystemError(`Sorry, ${name} is already taken.`);
     }
-    return true;
   };
 
-  private isUserNotInQueue = (user: User, queueName: string) => {
+  private verifyUserNotInQueue = (user: User, queueName: string) => {
     const getUserMention = getUserAsMention(user);
     const queue = this.inMemQueues.get(queueName);
 
     if (queue?.members.has(getUserMention)) {
       throw new SystemError(`You're already in the queue for: ${queueName}`);
     }
-
-    return true;
   };
 
-  private isUserInQueue = (user: User, queueName: string) => {
+  private verifyUserIsInQueue = (user: User, queueName: string) => {
     const getUserMention = getUserAsMention(user);
     const queue = this.inMemQueues.get(queueName);
 
     if (!queue?.members.has(getUserMention)) {
       throw new SystemError(`You're not in the queue for: ${queueName}`);
     }
-
-    return true;
   };
 }
