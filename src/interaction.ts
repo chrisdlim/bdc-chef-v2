@@ -44,21 +44,7 @@ const handleAutoComplete = async (
     return;
   }
 
-  const commandAutoCompleteConfig = command?.autocompleteConfig;
-
-
-  if (commandAutoCompleteConfig) {
-
-    const { value, name } = interaction.options.getFocused(true);
-
-    if (name in commandAutoCompleteConfig) {
-      const choices = commandAutoCompleteConfig[name]();
-      const filtered = choices.filter((choice) => choice.toLowerCase().startsWith(value.toLowerCase()));
-
-      await interaction.respond(
-        filtered.map((choice) => ({ name: choice, value: choice }))
-      );
-    }
+  if (command.handleAutoComplete) {
+    await command.handleAutoComplete(interaction);
   }
-
 };

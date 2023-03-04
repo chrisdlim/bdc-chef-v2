@@ -44,9 +44,12 @@ export class InMemQueue {
     return numberedList(queueMembers);
   }
 
-  private getCurrentQueueMembersMessage = (name: string) => {
+  private getCurrentQueueMembersMessage = (name: string, remainingSlots?: number) => {
+    const baseMessage = 
+      `Current queue: ${bold(name)}. ${remainingSlots ? 
+          `Looking for ${remainingSlots} more gamers!` : ''}`.trim()
     return [
-      `Current queue: ${bold(name)}`,
+      baseMessage,
       this.getQueueMembersList(name),
     ].join("\n");
   };
@@ -157,6 +160,7 @@ export class InMemQueue {
 
     if (queue?.isFull) {
       await interaction.editReply(this.getQueueReadyAnnouncement(name));
+      await interaction.reply('alskdjasdlkasd');
     }
   };
 
