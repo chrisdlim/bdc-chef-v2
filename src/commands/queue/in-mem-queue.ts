@@ -123,7 +123,6 @@ export class InMemQueue {
 
     this.addUserToQueue(user);
 
-    console.log('full?', this.inMemQueue.isFull)
     const getContent = this.inMemQueue.isFull ? this.getQueueReadyAnnouncement : this.getCurrentQueueMembersMessage;
 
     const easterEggMsg = easterEggNames?.includes(getUserWithDiscriminator(user)) ?
