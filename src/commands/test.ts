@@ -10,6 +10,6 @@ export const Test: Command = {
   description: "My test",
   type: ApplicationCommandType.ChatInput,
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
-    await interaction.reply({ content: 'Test success', ephemeral: true });
+    await interaction.reply({ content: "Test success", ephemeral: true });
   },
 };

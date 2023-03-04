@@ -35,9 +35,10 @@ const handleCommand = async (
       await command.run(client, interaction);
     }
   } catch (error) {
-    console.log('Received error when handling command', {
-      error, interaction
-    })
+    console.log("Received error when handling command", {
+      error,
+      interaction,
+    });
   }
 };
 
@@ -46,7 +47,6 @@ const handleAutoComplete = async (
   interaction: AutocompleteInteraction
 ): Promise<void> => {
   try {
-
     const command = findCommandByInteraction(interaction);
 
     if (!command) {
@@ -58,8 +58,9 @@ const handleAutoComplete = async (
       await command.handleAutoComplete(interaction);
     }
   } catch (error) {
-    console.log('Received error when handling autocomplete', {
-      error, interaction
-    })
+    console.log("Received error when handling autocomplete", {
+      error,
+      interaction,
+    });
   }
 };
