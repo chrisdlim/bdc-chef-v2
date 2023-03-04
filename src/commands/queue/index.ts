@@ -46,7 +46,7 @@ export const Queue: Command = {
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const { options } = interaction;
-    const action = options.getString(QueueOptionNames.ACTION, true);
+    const action = options.getString(QueueOptionNames.ACTION, false);
     const queueName = options.getString(QueueOptionNames.NAME);
     const queueSize = options.getInteger(QueueOptionNames.SIZE);
     const params = { action, queueName, queueSize }

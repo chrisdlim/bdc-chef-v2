@@ -5,7 +5,7 @@ import { QueueActions } from "./constants";
 import { bold, numberedList } from "../../utils/text";
 
 type HandleActionParams = {
-  action: string,
+  action: string | null,
   queueName: string | null,
   queueSize: number | null,
 };
@@ -21,6 +21,7 @@ class Queue {
     }
     return this.size === this.members.size;
   }
+
 }
 
 export class InMemQueue {
@@ -66,13 +67,26 @@ export class InMemQueue {
     return this.queueNamePrefix + queueSize;
   };
 
+  private getActionOrDefault = (action: string | null) => {
+    if (action) return action;
+
+      // If no action and there are queues, then have user join the first queue
+      if (this.inMemQueues.size) {
+        return QueueActions.JOIN;
+      }
+      // Else, user is creating the first queue
+      return QueueActions.START;
+    }
+
   handleAction = async (
     interaction: ChatInputCommandInteraction,
     { action, queueName, queueSize }: HandleActionParams,
   ) => {
     const { user } = interaction;
 
-    switch (action) {
+    const actionOrDefault = this.getActionOrDefault(action);
+
+    switch (actionOrDefault) {
       case QueueActions.LIST:
         await this.listQueues(interaction);
         break;
@@ -81,24 +95,24 @@ export class InMemQueue {
         await this.startQueue(queueName, queueSize, interaction);
         break;
       case QueueActions.SHOW:
-        this.verifyQueueNameIsProvided(queueName);
+        if (!this.verifyQueueNameIsProvided(queueName)) return;
         this.verifyQueueExists(queueName);
         await this.showQueue(queueName, interaction);
         break;
       case QueueActions.JOIN:
-        this.verifyQueueNameIsProvided(queueName);
+        if (!this.verifyQueueNameIsProvided(queueName)) return;
         this.verifyQueueExists(queueName);
         this.verifyUserNotInQueue(user, queueName);
-        await this.joinQueue(queueName, interaction);
+        await this.joinQueue(queueName!, interaction);
         break;
       case QueueActions.LEAVE:
-        this.verifyQueueNameIsProvided(queueName);
+        if (!this.verifyQueueNameIsProvided(queueName)) return;
         this.verifyQueueExists(queueName);
         this.verifyUserIsInQueue(user, queueName);
         await this.leaveQueue(queueName, interaction);
         break;
       case QueueActions.DELETE:
-        this.verifyQueueNameIsProvided(queueName);
+        if (!this.verifyQueueNameIsProvided(queueName)) return;
         this.verifyQueueExists(queueName);
         await this.deleteQueue(queueName, interaction);
         break;
@@ -168,7 +182,6 @@ export class InMemQueue {
     name: string,
     interaction: ChatInputCommandInteraction
   ) => {
-    console.log('trying to leave queue?...');
     const { user } = interaction;
     const queue = this.inMemQueues.get(name);
     queue?.members.delete(getUserAsMention(user));
@@ -201,12 +214,14 @@ export class InMemQueue {
     if (!name) {
       throw new SystemError("Provide a queue name.");
     }
+    return true;
   };
 
   private verifyQueueExists = (name: string) => {
     if (!this.getQueue(name)) {
       throw new SystemError(`${name} does not exist.`);
     }
+    return true;
   };
 
   private verifyQueueNameIsAvailable = (name: string | null) => {
