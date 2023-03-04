@@ -125,10 +125,10 @@ export class InMemQueue {
 
   private listQueues = async (interaction: ChatInputCommandInteraction) => {
     const queues = this.getCurrentQueueNames();
-    const content = [
+    const content = queues.length ? [
       'Current queues:',
       numberedList(queues)
-    ].join('\n');
+    ].join('\n') : 'Nobody wants to EAT. (No queues)';
     await interaction.reply(content);
   }
 
