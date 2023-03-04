@@ -12,6 +12,7 @@ import { InMemQueue } from "./in-mem-queue";
 import { CommandOptionsAutoCompleteConfig } from "../../autocomplete/types";
 
 const queue = new InMemQueue();
+const defaultQueueSize = 5;
 
 const autocompleteConfig: CommandOptionsAutoCompleteConfig = {
   [QueueOptionNames.ACTION]: () => Object.values(QueueActions),
@@ -47,7 +48,7 @@ export const Queue: Command = {
     const { options } = interaction;
     const action = options.getString(QueueOptionNames.ACTION, false);
     const queueName = options.getString(QueueOptionNames.NAME);
-    const queueSize = options.getInteger(QueueOptionNames.SIZE);
+    const queueSize = options.getInteger(QueueOptionNames.SIZE) || defaultQueueSize;
     const params = { action, queueName, queueSize }
 
     try {
