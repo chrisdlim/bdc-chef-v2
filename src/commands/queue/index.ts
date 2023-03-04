@@ -34,14 +34,22 @@ export const Queue: Command = {
       required: false,
       autocomplete: true,
     },
+    {
+      name: QueueOptionNames.SIZE,
+      description: "Size of the queue",
+      type: ApplicationCommandOptionType.Integer,
+      required: false,
+    },
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const { options } = interaction;
     const action = options.getString(QueueOptionNames.ACTION, true);
     const queueName = options.getString(QueueOptionNames.NAME);
+    const queueSize = options.getInteger(QueueOptionNames.SIZE);
+    const params = { action, queueName, queueSize }
 
     try {
-      await queue.handleAction(interaction, action, queueName);
+      await queue.handleAction(interaction, params);
     } catch (error) {
       if (error instanceof SystemError) {
         await error.handle(interaction);

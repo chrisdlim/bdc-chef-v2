@@ -4,8 +4,27 @@ import { getUserAsMention } from "../../utils/user";
 import { QueueActions } from "./constants";
 import { bold, numberedList } from "../../utils/text";
 
+type HandleActionParams = {
+  action: string,
+  queueName: string | null,
+  queueSize: number | null,
+};
+
+class Queue {
+  constructor(
+    public members: Set<string>,
+    public size: number | null) { }
+
+  get isFull() {
+    if (!this.size) {
+      throw new SystemError('This queue does not have a specified size.');
+    }
+    return this.size === this.members.size;
+  }
+}
+
 export class InMemQueue {
-  private inMemQueues = new Map<string, Set<string>>();
+  private inMemQueues = new Map<string, Queue>();
   private queueNamePrefix = "queue";
 
   getCurrentQueueNames = () =>
@@ -13,19 +32,30 @@ export class InMemQueue {
 
   getQueue = (name: string) => this.inMemQueues.get(name);
 
-  private getMembersByQueueName = (name: string) => {
+  private getQueueMembers = (name: string) => {
     if (this.inMemQueues.has(name)) {
-      return [...this.inMemQueues.get(name)!.keys()];
+      return [...this.inMemQueues.get(name)!.members!.keys()];
     }
     throw new SystemError(`Sorry, ${bold(name)} is not a queue anymore.`);
   };
 
-  private getQueueMembersMessage = (name: string) => {
-    const queueMembers = this.getMembersByQueueName(name);
+  private getQueueMembersList = (name: string) => {
+    const queueMembers = this.getQueueMembers(name);
+    return numberedList(queueMembers);
+  }
+
+  private getCurrentQueueMembersMessage = (name: string) => {
     return [
       `Current queue: ${bold(name)}`,
-      numberedList(queueMembers)
+      this.getQueueMembersList(name),
     ].join("\n");
+  };
+
+  private getQueueReadyAnnouncement = (name: string) => {
+    return [
+      `OOOOOORDER UP, "${bold(name)}" is ready to roll!`,
+      this.getQueueMembersList(name),
+    ].join('\n');
   };
 
   private getIncrementedQueueName = () => {
@@ -35,17 +65,17 @@ export class InMemQueue {
 
   handleAction = async (
     interaction: ChatInputCommandInteraction,
-    action: string,
-    queueName: string | null
+    { action, queueName, queueSize }: HandleActionParams,
   ) => {
     const { user } = interaction;
+
     switch (action) {
       case QueueActions.LIST:
         await this.listQueues(interaction);
         break;
       case QueueActions.START:
         if (!this.isQueueNameTaken(queueName)) return;
-        await this.startQueue(queueName, interaction);
+        await this.startQueue(queueName, queueSize, interaction);
         break;
       case QueueActions.SHOW:
         if (!this.isQueueNameProvided(queueName)) return;
@@ -57,15 +87,18 @@ export class InMemQueue {
         if (!this.doesQueueExist(queueName)) return;
         this.isUserNotInQueue(user, queueName);
         await this.joinQueue(queueName, interaction);
+        break;
       case QueueActions.LEAVE:
         if (!this.isQueueNameProvided(queueName)) return;
         if (!this.doesQueueExist(queueName)) return;
         if (!this.isUserInQueue(user, queueName)) return;
         await this.leaveQueue(queueName, interaction);
+        break;
       case QueueActions.DELETE:
         if (!this.isQueueNameProvided(queueName)) return;
         if (!this.doesQueueExist(queueName)) return;
         await this.deleteQueue(queueName, interaction);
+        break;
       default:
         break;
     }
@@ -84,16 +117,21 @@ export class InMemQueue {
 
   private startQueue = async (
     name: string | null,
+    queueSize: number | null,
     interaction: ChatInputCommandInteraction
   ) => {
     const { user } = interaction;
     const queueNameOrDefault = name || this.getIncrementedQueueName();
     const userMention = getUserAsMention(user);
-    const queue = new Set<string>();
-    queue.add(userMention);
+
+    const queue = new Queue(
+      new Set<string>([userMention]),
+      queueSize
+    );
 
     this.inMemQueues.set(queueNameOrDefault, queue);
-    const content = this.getQueueMembersMessage(queueNameOrDefault);
+    const content = this.getCurrentQueueMembersMessage(queueNameOrDefault);
+
     await interaction.reply(content);
   };
 
@@ -101,7 +139,7 @@ export class InMemQueue {
     name: string,
     interaction: ChatInputCommandInteraction
   ) => {
-    const content = this.getQueueMembersMessage(name);
+    const content = this.getCurrentQueueMembersMessage(name);
     await interaction.reply(content);
   };
 
@@ -110,23 +148,30 @@ export class InMemQueue {
     interaction: ChatInputCommandInteraction
   ) => {
     const { user } = interaction;
+
     const queue = this.inMemQueues.get(name);
-    queue?.add(getUserAsMention(user));
-    const content = this.getQueueMembersMessage(name);
+    queue?.members.add(getUserAsMention(user));
+
+    const content = this.getCurrentQueueMembersMessage(name);
     await interaction.reply(content);
+
+    if (queue?.isFull) {
+      await interaction.editReply(this.getQueueReadyAnnouncement(name));
+    }
   };
 
   private leaveQueue = async (
     name: string,
     interaction: ChatInputCommandInteraction
   ) => {
+    console.log('trying to leave queue?...');
     const { user } = interaction;
     const queue = this.inMemQueues.get(name);
-    queue?.delete(getUserAsMention(user));
+    queue?.members.delete(getUserAsMention(user));
 
     // If still has remaining members in queue, then return list of members
-    if (queue?.size) {
-      const content = this.getQueueMembersMessage(name);
+    if (queue?.members.size) {
+      const content = this.getCurrentQueueMembersMessage(name);
       await interaction.reply(content);
     } else {
       // Close the queue if everyone left
@@ -173,7 +218,7 @@ export class InMemQueue {
     const getUserMention = getUserAsMention(user);
     const queue = this.inMemQueues.get(queueName);
 
-    if (queue?.has(getUserMention)) {
+    if (queue?.members.has(getUserMention)) {
       throw new SystemError(`You're already in the queue for: ${queueName}`);
     }
 
@@ -184,7 +229,7 @@ export class InMemQueue {
     const getUserMention = getUserAsMention(user);
     const queue = this.inMemQueues.get(queueName);
 
-    if (!queue?.has(getUserMention)) {
+    if (!queue?.members.has(getUserMention)) {
       throw new SystemError(`You're not in the queue for: ${queueName}`);
     }
 

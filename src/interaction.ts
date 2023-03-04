@@ -38,22 +38,27 @@ const handleAutoComplete = async (
 ): Promise<void> => {
   const command = findCommandByInteraction(interaction);
 
+
   if (!command) {
     await interaction.respond([]);
     return;
   }
 
-  const commandAutoCompleteConfig = command.autocompleteConfig;
+  const commandAutoCompleteConfig = command?.autocompleteConfig;
+
 
   if (commandAutoCompleteConfig) {
+
     const { value, name } = interaction.options.getFocused(true);
 
     if (name in commandAutoCompleteConfig) {
       const choices = commandAutoCompleteConfig[name]();
-      const filtered = choices.filter((choice) => choice.startsWith(value));
+      const filtered = choices.filter((choice) => choice.toLowerCase().startsWith(value.toLowerCase()));
+
       await interaction.respond(
         filtered.map((choice) => ({ name: choice, value: choice }))
       );
     }
   }
+
 };
