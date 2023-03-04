@@ -22,6 +22,7 @@ export const commands: Command[] = [
   Oops,
   Inhouse,
   Queue,
+  Ltg,
 ];
 
 export const registerApplicationCommands = (client: Client<true>) => {
