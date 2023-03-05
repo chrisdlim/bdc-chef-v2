@@ -3,7 +3,7 @@ import {
   ChatInputCommandInteraction,
   Client,
 } from "discord.js";
-import { getGiphyBySearch } from "../giphy/api";
+import { getGiphyBySearch } from "../api/giphy";
 import { getRandomElement } from "../utils/random";
 import { Command } from "./types";
 

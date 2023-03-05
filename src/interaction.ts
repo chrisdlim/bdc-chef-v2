@@ -12,7 +12,7 @@ import {
   getPromptAnswer,
   getFirstPromptResponse,
   getOpenAI,
-} from "./commands/chatgpt/openai";
+} from "./api/chatgpt";
 
 export const registerInteractions = (client: Client<true>): void => {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
