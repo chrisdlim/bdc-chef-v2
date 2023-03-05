@@ -13,6 +13,7 @@ import {
   getFirstPromptResponse,
   getOpenAI,
 } from "./api/chatgpt";
+import { isUserMentioned } from "./utils/user";
 
 export const registerInteractions = (client: Client<true>): void => {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
@@ -26,14 +27,17 @@ export const registerInteractions = (client: Client<true>): void => {
 
   client.on(Events.MessageCreate, async (message: Message) => {
     const { content } = message;
-    const isBotMentioned = message.mentions.users.has(client.user.id);
+    const isBotMentioned = isUserMentioned(message, client.user);
 
     if (isBotMentioned) {
       const defaultResponse = `Oops, I'm not sure how to reply, but go f yourself, shitter. Back in the kitchen please!`;
       const openaiApi = getOpenAI();
       const messageReply = await getPromptAnswer(openaiApi, content).then(
         ({ data }) => getFirstPromptResponse(data, defaultResponse)
-      );
+      ).catch(() => {
+        // Error in case of rate limit or weird openai error response
+        return defaultResponse;
+      });
       await message.reply(messageReply);
     }
   });
