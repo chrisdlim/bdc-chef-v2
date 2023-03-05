@@ -4,6 +4,8 @@ import {
   Client,
   Events,
   Interaction,
+  Message,
+  MessageInteraction,
 } from "discord.js";
 import { findCommandByInteraction } from "./commands";
 
@@ -15,6 +17,11 @@ export const registerInteractions = (client: Client): void => {
     if (interaction.isAutocomplete()) {
       await handleAutoComplete(client, interaction);
     }
+  });
+
+  client.on('messageCreate', async (message: Message) => {
+    console.log(message);
+
   });
 };
 
