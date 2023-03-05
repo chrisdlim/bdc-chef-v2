@@ -8,7 +8,11 @@ import {
   MessageInteraction,
 } from "discord.js";
 import { findCommandByInteraction } from "./commands";
-import { getPromptAnswer, getFirstPromptResponse, getOpenAI } from "./commands/chatgpt/openai";
+import {
+  getPromptAnswer,
+  getFirstPromptResponse,
+  getOpenAI,
+} from "./commands/chatgpt/openai";
 
 export const registerInteractions = (client: Client<true>): void => {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
@@ -23,12 +27,13 @@ export const registerInteractions = (client: Client<true>): void => {
   client.on(Events.MessageCreate, async (message: Message) => {
     const { content } = message;
     const isBotMentioned = message.mentions.users.has(client.user.id);
-    
+
     if (isBotMentioned) {
       const defaultResponse = `Oops, I'm not sure how to reply, but go f yourself, shitter. Back in the kitchen please!`;
       const openaiApi = getOpenAI();
-      const messageReply = await getPromptAnswer(openaiApi, content)
-        .then(({ data }) => getFirstPromptResponse(data, defaultResponse));
+      const messageReply = await getPromptAnswer(openaiApi, content).then(
+        ({ data }) => getFirstPromptResponse(data, defaultResponse)
+      );
       await message.reply(messageReply);
     }
   });

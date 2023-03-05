@@ -13,10 +13,10 @@ export const AskChatGpt: Command = {
   type: ApplicationCommandType.ChatInput,
   options: [
     {
-      name: 'prompt',
-      description: 'Ask me something',
+      name: "prompt",
+      description: "Ask me something",
       type: ApplicationCommandOptionType.String,
-    }
+    },
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const openAiApi = getOpenAI();
