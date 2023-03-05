@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 
+//Make your Collection Data Types here
 
 export interface TestDbResult extends Document {
     _id: ObjectId;
@@ -8,4 +9,5 @@ export interface TestDbResult extends Document {
       message: string;
     }
   }
+
   

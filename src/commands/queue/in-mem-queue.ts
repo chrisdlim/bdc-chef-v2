@@ -1,131 +1,108 @@
 import { ChatInputCommandInteraction, User } from "discord.js";
-import { SystemError } from "../../error/system-error";
-import { getUserAsMention } from "../../utils/user";
+import { getUserAsMention, getUserWithDiscriminator } from "../../utils/user";
 import { QueueActions } from "./constants";
 import { bold, numberedList } from "../../utils/text";
+import { SystemError } from "../../error/system-error";
+
+// Move this to a config file pls chris
+const easterEggNames = process.env.EASTER_EGG_NAMES?.split(',');
 
 type HandleActionParams = {
-  action: string | null,
-  queueName: string | null,
-  queueSize: number | null,
+  action: string | null;
+  queueSize: number;
 };
 
 class Queue {
   constructor(
-    public members: Set<string>,
-    public size: number | null) { }
+    public members: Set<string> = new Set<string>(),
+    public size: number = 5
+  ) { }
 
   get isFull() {
-    if (!this.size) {
-      throw new SystemError('This queue does not have a specified size.');
-    }
     return this.size === this.members.size;
   }
 
+  setSize(size: number) {
+    this.size = size;
+  }
 }
 
 export class InMemQueue {
-  private inMemQueues = new Map<string, Queue>();
-  private queueNamePrefix = "queue";
+  private inMemQueue = new Queue();
+  private queueName = "gamer-queue";
 
-  getCurrentQueueNames = () =>
-    [...this.inMemQueues.keys()].map((name) => name.toLocaleLowerCase());
-
-  getQueue = (name: string) => this.inMemQueues.get(name);
-
-  private getQueueMembers = (name: string) => {
-    if (this.inMemQueues.has(name)) {
-      return [...this.inMemQueues.get(name)!.members!.keys()];
-    }
-    throw new SystemError(`Sorry, ${bold(name)} is not a queue anymore.`);
+  private getQueueMembers = () => {
+    return [...this.inMemQueue.members.keys()];
   };
 
-  private getQueueMembersList = (name: string) => {
-    const queueMembers = this.getQueueMembers(name);
+  private getQueueMembersList = () => {
+    const queueMembers = this.getQueueMembers();
     return numberedList(queueMembers);
-  }
+  };
 
-  private getCurrentQueueMembersMessage = (name: string, queue?: Queue | null) => {
-    const remainingSlots = queue?.size ? queue.size - queue.members.size : 0;
+  private getCurrentQueueMembersMessage = (message?: string) => {
+    const remainingSlots = this.inMemQueue.size - this.inMemQueue.members.size;
     const baseMessage =
-      `Current queue: ${bold(name)}. ${remainingSlots ?
-        `Looking for ${remainingSlots} more gamer(s)!` : ''}`.trim()
+      message ||
+      `${bold(this.queueName)}. ${remainingSlots ? `Looking for ${remainingSlots} more gamer(s)!` : ""
+        }`.trim();
+    return [baseMessage, this.getQueueMembersList()].join("\n");
+  };
+
+  private getQueueReadyAnnouncement = () => {
     return [
-      baseMessage,
-      this.getQueueMembersList(name),
+      `OOOOORDER UP, "${bold(this.queueName)}" is ready to roll!`,
+      this.getQueueMembersList(),
     ].join("\n");
   };
 
-  private getQueueReadyAnnouncement = (name: string) => {
-    return [
-      `OOOOORDER UP, "${bold(name)}" is ready to roll!`,
-      this.getQueueMembersList(name),
-    ].join('\n');
+  private isUserInQueue = (user: User) => {
+    const userMention = getUserAsMention(user);
+    return this.inMemQueue?.members.has(userMention);
   };
 
-  private getIncrementedQueueName = () => {
-    const queueSize = this.inMemQueues.size || 1;
-    return this.queueNamePrefix + queueSize;
+  private addUserToQueue = (user: User) => {
+    const userMention = getUserAsMention(user);
+    this.inMemQueue.members.add(userMention);
   };
 
-  private getActionOrDefault = (action: string | null) => {
+  private removeUserFromQueue = (user: User) => {
+    const userMention = getUserAsMention(user);
+    this.inMemQueue.members.delete(userMention);
+  };
+
+  private getActionOrDefault = (action: string | null, user: User) => {
     if (action) return action;
-
-    // If no action and there are queues, then have user join the first queue
-    // else, user is creating the first queue
-    return this.inMemQueues.size ? QueueActions.JOIN : QueueActions.START
-  }
+    return this.isUserInQueue(user) ? QueueActions.SHOW : QueueActions.JOIN;
+  };
 
   handleAction = async (
     interaction: ChatInputCommandInteraction,
-    { action, queueName, queueSize }: HandleActionParams,
+    { action, queueSize }: HandleActionParams
   ) => {
     const { user } = interaction;
 
-    const actionOrDefault = this.getActionOrDefault(action);
+    if (queueSize) {
+      this.inMemQueue.setSize(queueSize);
+    }
+
+    const actionOrDefault = this.getActionOrDefault(action, user);
 
     switch (actionOrDefault) {
-      case QueueActions.LIST:
-        await this.listQueues(interaction);
-        break;
-      case QueueActions.START:
-        this.verifyQueueNameIsAvailable(queueName);
-        await this.startQueue(queueName, queueSize, interaction);
-        break;
-      case QueueActions.SHOW:
-        if (!this.verifyQueueNameIsProvided(queueName)) return;
-        this.verifyQueueExists(queueName);
-        await this.showQueue(queueName, interaction);
-        break;
       case QueueActions.JOIN:
-        // Edge case where user is defaulting to join first queue
-        if (!action) {
-          if (!this.inMemQueues.size) {
-            throw new SystemError(`Whoops, looks like we got no chefs today. NOBODY'S COOKIN' (sorry, no queues).`)
-          }
-
-          const [firstQueueName] = this.inMemQueues.entries().next().value as [string, Queue];
-
-          this.verifyUserNotInQueue(user, firstQueueName);
-          await this.joinQueue(firstQueueName, interaction);
-          break;
-        }
-
-        if (!this.verifyQueueNameIsProvided(queueName)) return;
-        this.verifyQueueExists(queueName);
-        this.verifyUserNotInQueue(user, queueName);
-        await this.joinQueue(queueName, interaction);
+        await this.joinQueue(interaction);
         break;
       case QueueActions.LEAVE:
-        if (!this.verifyQueueNameIsProvided(queueName)) return;
-        this.verifyQueueExists(queueName);
-        this.verifyUserIsInQueue(user, queueName);
-        await this.leaveQueue(queueName, interaction);
+        if (!this.isUserInQueue(user)) {
+          throw new SystemError("You aren't in the queue.");
+        }
+        await this.leaveQueue(interaction);
         break;
-      case QueueActions.DELETE:
-        if (!this.verifyQueueNameIsProvided(queueName)) return;
-        this.verifyQueueExists(queueName);
-        await this.deleteQueue(queueName, interaction);
+      case QueueActions.SHOW:
+        await this.showQueue(interaction);
+        break;
+      case QueueActions.CLEAR:
+        await this.clearQueue(interaction);
         break;
       default:
         break;
@@ -134,127 +111,41 @@ export class InMemQueue {
 
   // Queue actions
 
-  private listQueues = async (interaction: ChatInputCommandInteraction) => {
-    const queues = this.getCurrentQueueNames();
-    const content = queues.length ? [
-      'Current queues:',
-      numberedList(queues)
-    ].join('\n') : 'Nobody wants to EAT. (No queues)';
-    await interaction.reply(content);
-  }
-
-  private startQueue = async (
-    name: string | null,
-    queueSize: number | null,
-    interaction: ChatInputCommandInteraction
-  ) => {
-    const { user } = interaction;
-    const queueNameOrDefault = name || this.getIncrementedQueueName();
-    const userMention = getUserAsMention(user);
-
-    const queue = new Queue(
-      new Set<string>([userMention]),
-      queueSize
-    );
-
-    this.inMemQueues.set(queueNameOrDefault, queue);
-    const content = this.getCurrentQueueMembersMessage(queueNameOrDefault, queue);
-
-    await interaction.reply(content);
-  };
-
-  private showQueue = async (
-    name: string,
-    interaction: ChatInputCommandInteraction
-  ) => {
-    const content = this.getCurrentQueueMembersMessage(name);
+  private showQueue = async (interaction: ChatInputCommandInteraction) => {
+    const baseMessage =
+      "You're aleady waiting to cook! Here's the current lineup:";
+    const content = this.getCurrentQueueMembersMessage(baseMessage);
     await interaction.reply({ content, ephemeral: true });
   };
 
-  private joinQueue = async (
-    name: string,
-    interaction: ChatInputCommandInteraction
-  ) => {
+  private joinQueue = async (interaction: ChatInputCommandInteraction) => {
     const { user } = interaction;
 
-    const queue = this.inMemQueues.get(name);
-    queue?.members.add(getUserAsMention(user));
+    this.addUserToQueue(user);
 
-    const content = this.getCurrentQueueMembersMessage(name, queue);
+    const getContent = this.inMemQueue.isFull ? this.getQueueReadyAnnouncement : this.getCurrentQueueMembersMessage;
+
+    const easterEggMsg = easterEggNames?.includes(getUserWithDiscriminator(user)) ?
+      `Btw, your meals taste like ass ${getUserAsMention(user)}` : ''
+
+    const content = [getContent(), easterEggMsg].join('\n');
     await interaction.reply(content);
-
-    if (queue?.size && queue?.isFull) {
-      await interaction.editReply(this.getQueueReadyAnnouncement(name));
-    }
   };
 
-  private leaveQueue = async (
-    name: string,
-    interaction: ChatInputCommandInteraction
-  ) => {
-    const { user } = interaction;
-    const queue = this.inMemQueues.get(name);
-    queue?.members.delete(getUserAsMention(user));
+  private leaveQueue = async (interaction: ChatInputCommandInteraction) => {
+    this.removeUserFromQueue(interaction.user);
 
     // If still has remaining members in queue, then return list of members
-    if (queue?.members.size) {
-      const content = this.getCurrentQueueMembersMessage(name, queue);
+    if (this.inMemQueue.members.size) {
+      const content = this.getCurrentQueueMembersMessage();
       await interaction.reply(content);
     } else {
-      // Close the queue if everyone left
-      this.deleteQueue(name, interaction);
+      await interaction.reply("Where the f my chefs go?? Queue is empty.");
     }
   };
 
-  private deleteQueue = async (
-    name: string,
-    interaction: ChatInputCommandInteraction
-  ) => {
-    if (this.inMemQueues.has(name)) {
-      this.inMemQueues.delete(name);
-      await interaction.reply(
-        `No one's hungry? Alright, closing the queue: **${name}**.`
-      );
-    }
-  };
-
-  // Queue validation
-
-  private verifyQueueNameIsProvided = (name: string | null): name is string => {
-    if (!name) {
-      throw new SystemError("Provide a queue name.");
-    }
-    return true;
-  };
-
-  private verifyQueueExists = (name: string) => {
-    if (!this.getQueue(name)) {
-      throw new SystemError(`${name} does not exist.`);
-    }
-    return true;
-  };
-
-  private verifyQueueNameIsAvailable = (name: string | null) => {
-    if (name && !!this.getQueue(name)) {
-      throw new SystemError(`Sorry, ${name} is already taken.`);
-    }
-  };
-
-  private verifyUserNotInQueue = (user: User, queueName: string) => {
-    const getUserMention = getUserAsMention(user);
-    const queue = this.inMemQueues.get(queueName);
-
-    if (queue?.members.has(getUserMention)) {
-      throw new SystemError(`You're already in the queue for: ${queueName}`);
-    }
-  };
-
-  private verifyUserIsInQueue = (user: User, queueName: string) => {
-    const getUserMention = getUserAsMention(user);
-    const queue = this.inMemQueues.get(queueName);
-
-    if (!queue?.members.has(getUserMention)) {
-      throw new SystemError(`You're not in the queue for: ${queueName}`);
-    }
+  private clearQueue = async (interaction: ChatInputCommandInteraction) => {
+    this.inMemQueue.members.clear();
+    await interaction.reply(`No one's hungry? Alright, clearing the queue.`);
   };
 }
