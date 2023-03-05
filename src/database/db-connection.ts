@@ -7,12 +7,18 @@ const options: MongoClientOptions = {
   maxIdleTimeMS: FIVE_MINUTES,
 };
 
-export const getConnection = (databaseName: string): Promise<Db | void> => {
+const DB_ENDPOINT = process.env.DB_ENDPOINT;
+
+if (!DB_ENDPOINT) {
+  throw new Error('DB_ENDPOINT not provided.');
+}
+
+export const getConnection = (databaseName: string): Promise<Db> => {
   if (dbConnection) {
     console.log("Using existing connection");
     return Promise.resolve(dbConnection);
   } else {
-    return MongoClient.connect(process.env.DB_ENDPOINT!, options)
+    return MongoClient.connect(DB_ENDPOINT, options)
       .then((connection: MongoClient) => {
         console.log("Connected to the database");
         dbConnection = connection.db(databaseName);
@@ -20,6 +26,7 @@ export const getConnection = (databaseName: string): Promise<Db | void> => {
       })
       .catch((error) => {
         console.log("Could not connect to the database: \n%s", error);
+        throw error;
       });
   }
 };

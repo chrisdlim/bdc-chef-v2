@@ -39,7 +39,7 @@ export const TestDb: Command = {
     const insertName = options.getString("insert", false);
     const dropDb = options.getString("drop", false);
 
-    const testDbConnection = await getConnection("test");
+    const testDbConnection = await getConnection("test").catch();
     if (testDbConnection) {
       if (dropDb) {
         await deleteCollection(testDbConnection, "collection");
