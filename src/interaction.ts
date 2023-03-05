@@ -60,7 +60,6 @@ const handleAutoComplete = async (
   } catch (error) {
     console.log("Received error when handling autocomplete", {
       error,
-      interaction,
     });
   }
 };

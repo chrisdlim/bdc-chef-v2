@@ -25,7 +25,7 @@ export const commands: Command[] = [
   Inhouse,
   Queue,
   Ltg,
-  TestDb
+  TestDb,
 ];
 
 export const registerApplicationCommands = (client: Client<true>) => {
