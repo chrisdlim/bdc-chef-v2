@@ -13,6 +13,7 @@ import { Command } from "./types";
 import { Roll } from "./roll";
 import { Queue } from "./queue";
 import { Ltg } from "./ltg";
+import { TestDb } from "./test-db";
 
 export const commands: Command[] = [
   Ping,
@@ -24,6 +25,7 @@ export const commands: Command[] = [
   Inhouse,
   Queue,
   Ltg,
+  TestDb
 ];
 
 export const registerApplicationCommands = (client: Client<true>) => {
