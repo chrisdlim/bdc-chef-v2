@@ -1,4 +1,5 @@
 import { Configuration, CreateCompletionResponse, OpenAIApi } from "openai";
+import { getConfig } from "../../config";
 
 type ChatOptions = {
   model?: string;
@@ -6,9 +7,10 @@ type ChatOptions = {
 };
 
 const DEFAULT_CHAT_MODEL = "text-davinci-003";
+const config = getConfig();
 
 const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: config.openaiApiKey,
 });
 
 const openai = new OpenAIApi(configuration);

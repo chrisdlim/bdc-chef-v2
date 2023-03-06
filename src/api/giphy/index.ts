@@ -1,14 +1,11 @@
 import axios from "axios";
 import { Gif } from "./types";
 import { URL } from "url";
+import { getConfig } from "../../config";
 
-const apiToken = process.env.GIPHY_TOKEN;
+const config = getConfig();
 const giphyBaseUrl = "https://api.giphy.com/v1/gifs/";
 const giphySearchUrl = new URL("search", giphyBaseUrl);
-
-if (!apiToken) {
-  throw new Error("Giphy token required!");
-}
 
 export const getGiphyBySearch = (term: string): Promise<Gif[]> => {
   return axios
@@ -16,7 +13,7 @@ export const getGiphyBySearch = (term: string): Promise<Gif[]> => {
       params: {
         lang: "en",
         q: term,
-        api_key: apiToken,
+        api_key: config.giphyApiKey,
       },
     })
     .then(({ data }) => data.data);

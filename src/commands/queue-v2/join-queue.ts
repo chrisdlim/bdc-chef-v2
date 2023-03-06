@@ -3,7 +3,7 @@ import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
-import { getQueueTitle, getQueueSizeFromString } from "./utils";
+import { getQueueTitle, getQueueSizeFromString as getNumberFromString } from "./utils";
 
 export const JoinQueue: ButtonInteractionHandler = {
   id: 'q2-join',
@@ -16,20 +16,20 @@ export const JoinQueue: ButtonInteractionHandler = {
       throw new SystemError('Welp, I don\'t know what to do here. Goodbye.');
     }
 
-
     const userMention = getUserAsMention(user);
     const [queueField] = embed.data.fields;
     const { name, value: queuedUsersStr } = queueField;
     const currentQueuedUsers = denumberList(queuedUsersStr);
-    const queueSizeFromDesc = getQueueSizeFromString(embed.title!);
+    const remainingSlots = getNumberFromString(embed.title!);
+    const queueSize = remainingSlots + currentQueuedUsers.length;
 
-    if (currentQueuedUsers.includes(userMention)) {
-      await interaction.reply({
-        content: 'You are already a master chef',
-        ephemeral: true,
-      });
-      return;
-    }
+    // if (currentQueuedUsers.includes(userMention)) {
+    //   await interaction.reply({
+    //     content: 'You are already a master chef',
+    //     ephemeral: true,
+    //   });
+    //   return;
+    // }
 
     const updatedQueuedUsers = [...currentQueuedUsers, userMention];
     const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers);
@@ -38,12 +38,12 @@ export const JoinQueue: ButtonInteractionHandler = {
       ...interaction.message.embeds[0].data,
       fields: [{ name, value: updatedQueuedUsersNumbered }],
       title: getQueueTitle(
-        queueSizeFromDesc + currentQueuedUsers.length, 
+        queueSize, 
         updatedQueuedUsers.length
       ),
     }
 
     const editedEmbed = new EmbedBuilder(updatedEmbed)
-    await interaction.update({ embeds: [editedEmbed] });
+    await interaction.reply({ embeds: [editedEmbed] });
   }
 };

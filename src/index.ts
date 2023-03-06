@@ -1,11 +1,8 @@
 import { initBot } from "./bot";
+import { getConfig } from "./config";
 
-const TOKEN = process.env.TOKEN;
-
-if (!TOKEN) {
-  throw new Error("Discord token required!");
-}
+const config = getConfig();
 
 (async () => {
-  await initBot(TOKEN);
+  await initBot(config.token);
 })();

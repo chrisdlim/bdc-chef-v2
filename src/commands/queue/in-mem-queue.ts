@@ -3,9 +3,9 @@ import { getUserAsMention, getUserWithDiscriminator } from "../../utils/user";
 import { QueueActions } from "./constants";
 import { bold, numberedList } from "../../utils/text";
 import { SystemError } from "../../error/system-error";
+import { getConfig } from "../../config";
 
-// Move this to a config file pls chris
-const easterEggNames = process.env.EASTER_EGG_NAMES?.split(",");
+const config = getConfig();
 
 type HandleActionParams = {
   action: string | null;
@@ -127,7 +127,7 @@ export class InMemQueue {
       ? this.getQueueReadyAnnouncement
       : this.getCurrentQueueMembersMessage;
 
-    const easterEggMsg = easterEggNames?.includes(
+    const easterEggMsg = config.easterEggNames.includes(
       getUserWithDiscriminator(user)
     )
       ? `Btw, your meals taste like ass ${getUserAsMention(user)}`

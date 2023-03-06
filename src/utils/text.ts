@@ -20,3 +20,5 @@ export const denumberList = (numberedListAsStr: string) => {
 }
 export const bulletedList = (values: string[]) =>
   values.map((value) => `- ${value}`).join("\n");
+
+export const getRoleMention = (id: string) => `<@&${id}>`;

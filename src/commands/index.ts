@@ -15,7 +15,7 @@ import { Roll } from "./roll";
 import { Queue } from "./queue";
 import { Ltg } from "./ltg";
 import { TestDb } from "./test-db";
-import { QueueV2 } from "./queue-v2";
+import { Assemble, QueueV2 } from "./queue-v2";
 import { JoinQueue } from "./queue-v2/join-queue";
 import { LeaveQueue } from "./queue-v2/leave-queue";
 
@@ -31,6 +31,7 @@ export const commands: Command[] = [
   Ltg,
   TestDb,
   QueueV2,
+  Assemble,
 ];
 
 export const buttonHandlers: ButtonInteractionHandler[] = [
