@@ -1,15 +1,25 @@
-import { ButtonInteraction, EmbedBuilder } from "discord.js";
+import { ActionRowBuilder } from "@discordjs/builders";
+import { ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder } from "discord.js";
 import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
 import { getQueueTitle, getQueueSizeFromString as getNumberFromString } from "./utils";
 
+const id = 'q2-join';
+const label = 'Join queue';
+
+export const getJoinQueueButton = (isDisabled = false) => new ButtonBuilder()
+  .setCustomId(id)
+  .setLabel(label)
+  .setStyle(ButtonStyle.Primary)
+  .setDisabled(isDisabled);
+
 export const JoinQueue: ButtonInteractionHandler = {
-  id: 'q2-join',
-  label: 'Join queue',
+  id,
+  label,
   run: async (interaction: ButtonInteraction) => {
-    const { user, message: { embeds } } = interaction;
+    const { user, message: { embeds, components } } = interaction;
     const [embed] = embeds;
 
     if (!embed || !embed.data.fields) {
@@ -34,16 +44,25 @@ export const JoinQueue: ButtonInteractionHandler = {
     const updatedQueuedUsers = [...currentQueuedUsers, userMention];
     const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers);
 
+    const isQueueFull = updatedQueuedUsers.length >= queueSize;
+
+    const updatedButtons =
+      components[0].components.map((button) => button.customId === id ?
+        getJoinQueueButton(isQueueFull) : new ButtonBuilder(button.data))
+
     const updatedEmbed = {
       ...interaction.message.embeds[0].data,
       fields: [{ name, value: updatedQueuedUsersNumbered }],
       title: getQueueTitle(
-        queueSize, 
+        queueSize,
         updatedQueuedUsers.length
       ),
-    }
+    };
+
+    const updatedEmbedActions = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(updatedButtons)
 
     const editedEmbed = new EmbedBuilder(updatedEmbed)
-    await interaction.reply({ embeds: [editedEmbed] });
+    await interaction.update({ embeds: [editedEmbed], components: [updatedEmbedActions] });
   }
 };

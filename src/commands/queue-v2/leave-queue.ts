@@ -1,15 +1,23 @@
-import { ButtonInteraction, EmbedBuilder } from "discord.js";
+import { ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder } from "discord.js";
 import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
 import { getQueueTitle, getQueueSizeFromString } from "./utils";
 
+const id = 'q2-leave';
+const label = 'Leave queue';
+
+export const getLeaveQueueButton = () => new ButtonBuilder()
+  .setCustomId(id)
+  .setLabel(label)
+  .setStyle(ButtonStyle.Danger);
+
 export const LeaveQueue: ButtonInteractionHandler = {
   id: 'q2-leave',
   label: 'Leave queue',
   run: async (interaction: ButtonInteraction) => {
-    const { user, message: { embeds, components } } = interaction;
+    const { user, message: { embeds } } = interaction;
     const [embed] = embeds;
     if (!embed || !embed.data.fields) {
       throw new SystemError('Welp, I don\'t know what to do here. Goodbye.');

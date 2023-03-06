@@ -6,8 +6,8 @@ import { getRandomElement } from "../../utils/random";
 import { getRoleMention, numberedList } from "../../utils/text";
 import { getUserAsMention, getUserWithDiscriminator } from "../../utils/user";
 import { Command } from "../types";
-import { JoinQueue } from "./join-queue";
-import { LeaveQueue } from "./leave-queue";
+import { getJoinQueueButton, JoinQueue } from "./join-queue";
+import { getLeaveQueueButton, LeaveQueue } from "./leave-queue";
 import { getQueueTitle } from "./utils";
 
 const config = getConfig();
@@ -43,20 +43,10 @@ export const QueueV2: Command = {
         },
       );
 
-    const joinQueueButton = new ButtonBuilder()
-      .setCustomId(JoinQueue.id)
-      .setLabel(JoinQueue.label)
-      .setStyle(ButtonStyle.Primary);
-
-    const leaveQueueButton = new ButtonBuilder()
-      .setCustomId(LeaveQueue.id)
-      .setLabel(LeaveQueue.label)
-      .setStyle(ButtonStyle.Danger);
-
     const embedActions = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(
-        joinQueueButton,
-        leaveQueueButton
+        getJoinQueueButton(),
+        getLeaveQueueButton(),
       );
 
     await interaction.reply({
