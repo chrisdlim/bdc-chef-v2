@@ -35,13 +35,20 @@ export const Queue: Command = {
       description: "Size of the queue",
       type: ApplicationCommandOptionType.Integer,
     },
+    {
+      name: QueueOptionNames.USER,
+      description: 'User to add',
+      type: ApplicationCommandOptionType.User,
+    }
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const { options } = interaction;
     const action = options.getString(QueueOptionNames.ACTION, false);
     const queueSize =
       options.getInteger(QueueOptionNames.SIZE) || defaultQueueSize;
-    const params = { action, queueSize };
+    const user = options.getUser(QueueOptionNames.USER);
+
+    const params = { action, queueSize, user };
 
     try {
       await queue.handleAction(interaction, params);

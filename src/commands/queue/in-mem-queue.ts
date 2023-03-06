@@ -10,13 +10,14 @@ const easterEggNames = process.env.EASTER_EGG_NAMES?.split(",");
 type HandleActionParams = {
   action: string | null;
   queueSize: number;
+  user: User | null,
 };
 
 class Queue {
   constructor(
     public members: Set<string> = new Set<string>(),
     public size: number = 5
-  ) {}
+  ) { }
 
   get isFull() {
     return this.size === this.members.size;
@@ -44,9 +45,8 @@ export class InMemQueue {
     const remainingSlots = this.inMemQueue.size - this.inMemQueue.members.size;
     const baseMessage =
       message ||
-      `${bold(this.queueName)}. ${
-        remainingSlots ? `Looking for ${remainingSlots} more gamer(s)!` : ""
-      }`.trim();
+      `${bold(this.queueName)}. ${remainingSlots ? `Looking for ${remainingSlots} more gamer(s)!` : ""
+        }`.trim();
     return [baseMessage, this.getQueueMembersList()].join("\n");
   };
 
@@ -79,7 +79,7 @@ export class InMemQueue {
 
   handleAction = async (
     interaction: ChatInputCommandInteraction,
-    { action, queueSize }: HandleActionParams
+    { action, queueSize, user: userToAdd }: HandleActionParams
   ) => {
     const { user } = interaction;
 
@@ -91,7 +91,7 @@ export class InMemQueue {
 
     switch (actionOrDefault) {
       case QueueActions.JOIN:
-        await this.joinQueue(interaction);
+        await this.joinQueue(interaction, userToAdd || interaction.user);
         break;
       case QueueActions.LEAVE:
         if (!this.isUserInQueue(user)) {
@@ -119,8 +119,7 @@ export class InMemQueue {
     await interaction.reply({ content, ephemeral: true });
   };
 
-  private joinQueue = async (interaction: ChatInputCommandInteraction) => {
-    const { user } = interaction;
+  private joinQueue = async (interaction: ChatInputCommandInteraction, user: User) => {
 
     this.addUserToQueue(user);
 
