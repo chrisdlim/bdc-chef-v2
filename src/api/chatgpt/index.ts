@@ -28,7 +28,10 @@ export const getPromptAnswer = (
     prompt,
     temperature: temperature || 0,
   }).then((response) => {
-    console.log('Received ChatGpt response', response)
+    console.log('Received ChatGpt response...')
+    response.data.choices.forEach((choice) => {
+      console.log('Choice: ', JSON.stringify(choice));
+    });
     return response;
   });
 };
