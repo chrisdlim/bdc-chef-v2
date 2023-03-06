@@ -4,6 +4,7 @@ import { getConfig } from "../../config";
 type ChatOptions = {
   model?: string;
   temperature?: number;
+  maxTokens?: number;
 };
 
 const DEFAULT_CHAT_MODEL = "text-davinci-003";
@@ -22,18 +23,21 @@ export const getPromptAnswer = (
   prompt: string,
   options: ChatOptions = {}
 ) => {
-  const { model, temperature } = options;
-  return api.createCompletion({
-    model: model || DEFAULT_CHAT_MODEL,
-    prompt,
-    temperature: temperature || 0,
-  }).then((response) => {
-    console.log('Received ChatGpt response...')
-    response.data.choices.forEach((choice) => {
-      console.log('Choice: ', JSON.stringify(choice));
+  const { model, temperature, maxTokens } = options;
+  return api
+    .createCompletion({
+      model: model || DEFAULT_CHAT_MODEL,
+      prompt,
+      temperature: temperature || 0.5,
+      max_tokens: maxTokens || 1000,
+    })
+    .then((response) => {
+      console.log("Received ChatGpt response...");
+      response.data.choices.forEach((choice) => {
+        console.log("Choice: ", JSON.stringify(choice));
+      });
+      return response;
     });
-    return response;
-  });
 };
 
 export const getFirstPromptResponse = (
