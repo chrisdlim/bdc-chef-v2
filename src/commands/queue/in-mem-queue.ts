@@ -87,7 +87,7 @@ export class InMemQueue {
       this.inMemQueue.setSize(queueSize);
     }
 
-    const actionOrDefault = this.getActionOrDefault(action, user);
+    const actionOrDefault = this.getActionOrDefault(action, userToAdd || user);
 
     switch (actionOrDefault) {
       case QueueActions.JOIN:
