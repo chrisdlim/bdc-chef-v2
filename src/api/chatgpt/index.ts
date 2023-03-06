@@ -27,6 +27,9 @@ export const getPromptAnswer = (
     model: model || DEFAULT_CHAT_MODEL,
     prompt,
     temperature: temperature || 0,
+  }).then((response) => {
+    console.log('Received ChatGpt response', response)
+    return response;
   });
 };
 
