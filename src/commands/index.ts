@@ -18,6 +18,7 @@ import { TestDb } from "./test-db";
 import { Assemble, QueueV2 } from "./queue-v2";
 import { JoinQueue } from "./queue-v2/join-queue";
 import { LeaveQueue } from "./queue-v2/leave-queue";
+import { ToxicLine } from "./toxic-line";
 
 export const commands: Command[] = [
   Ping,
@@ -32,6 +33,7 @@ export const commands: Command[] = [
   TestDb,
   QueueV2,
   Assemble,
+  ToxicLine,
 ];
 
 export const buttonHandlers: ButtonInteractionHandler[] = [
