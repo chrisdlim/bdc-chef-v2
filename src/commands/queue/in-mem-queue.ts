@@ -10,14 +10,14 @@ const config = getConfig();
 type HandleActionParams = {
   action: string | null;
   queueSize: number;
-  user: User | null,
+  user: User | null;
 };
 
 class Queue {
   constructor(
     public members: Set<string> = new Set<string>(),
     public size: number = 5
-  ) { }
+  ) {}
 
   get isFull() {
     return this.size === this.members.size;
@@ -45,8 +45,9 @@ export class InMemQueue {
     const remainingSlots = this.inMemQueue.size - this.inMemQueue.members.size;
     const baseMessage =
       message ||
-      `${bold(this.queueName)}. ${remainingSlots ? `Looking for ${remainingSlots} more gamer(s)!` : ""
-        }`.trim();
+      `${bold(this.queueName)}. ${
+        remainingSlots ? `Looking for ${remainingSlots} more gamer(s)!` : ""
+      }`.trim();
     return [baseMessage, this.getQueueMembersList()].join("\n");
   };
 
@@ -119,8 +120,10 @@ export class InMemQueue {
     await interaction.reply({ content, ephemeral: true });
   };
 
-  private joinQueue = async (interaction: ChatInputCommandInteraction, user: User) => {
-
+  private joinQueue = async (
+    interaction: ChatInputCommandInteraction,
+    user: User
+  ) => {
     this.addUserToQueue(user);
 
     const getContent = this.inMemQueue.isFull

@@ -36,7 +36,7 @@ export const commands: Command[] = [
 
 export const buttonHandlers: ButtonInteractionHandler[] = [
   JoinQueue,
-  LeaveQueue
+  LeaveQueue,
 ];
 
 export const registerApplicationCommands = (client: Client<true>) => {

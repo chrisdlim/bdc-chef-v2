@@ -9,7 +9,10 @@ import {
   Message,
   MessageInteraction,
 } from "discord.js";
-import { findButtonHandlerByInteraction, findCommandByInteraction } from "./commands";
+import {
+  findButtonHandlerByInteraction,
+  findCommandByInteraction,
+} from "./commands";
 import {
   getPromptAnswer,
   getFirstPromptResponse,
@@ -41,12 +44,12 @@ export const registerInteractions = (client: Client<true>): void => {
     if (isBotMentioned) {
       const defaultResponse = `Oops, I'm not sure how to reply, but go f yourself, shitter. Back in the kitchen please!`;
       const openaiApi = getOpenAI();
-      const messageReply = await getPromptAnswer(openaiApi, content).then(
-        ({ data }) => getFirstPromptResponse(data, defaultResponse)
-      ).catch(() => {
-        // Error in case of rate limit or weird openai error response
-        return defaultResponse;
-      });
+      const messageReply = await getPromptAnswer(openaiApi, content)
+        .then(({ data }) => getFirstPromptResponse(data, defaultResponse))
+        .catch(() => {
+          // Error in case of rate limit or weird openai error response
+          return defaultResponse;
+        });
       await message.reply(messageReply);
     }
   });
@@ -103,10 +106,10 @@ const handleButtonInteraction = async (interaction: ButtonInteraction) => {
 
   const handler = findButtonHandlerByInteraction(customId);
   if (!handler) {
-    console.log('Oops, could not find handler for button id', customId)
+    console.log("Oops, could not find handler for button id", customId);
     await interaction.deferUpdate();
     return;
   }
 
   await handler.run(interaction);
-}
+};

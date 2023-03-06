@@ -6,8 +6,8 @@ export const QueueActions = {
 } as const;
 
 export const QueueOptionNames = {
-  ACTION: 'action',
-  NAME: 'name',
-  SIZE: 'size',
-  USER: 'user',
+  ACTION: "action",
+  NAME: "name",
+  SIZE: "size",
+  USER: "user",
 } as const;

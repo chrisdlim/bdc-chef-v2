@@ -37,9 +37,9 @@ export const Queue: Command = {
     },
     {
       name: QueueOptionNames.USER,
-      description: 'User to add',
+      description: "User to add",
       type: ApplicationCommandOptionType.User,
-    }
+    },
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const { options } = interaction;

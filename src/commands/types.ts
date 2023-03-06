@@ -17,5 +17,5 @@ export interface Command extends ChatInputApplicationCommandData {
 export type ButtonInteractionHandler = {
   id: string;
   label: string;
-  run: (interaction: ButtonInteraction) => Promise<void>,
-}
+  run: (interaction: ButtonInteraction) => Promise<void>;
+};

@@ -16,7 +16,11 @@ export const Ltg: Command = {
   type: ApplicationCommandType.ChatInput,
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     await interaction.reply(
-      `${getUserAsMention(interaction.user)} looking for some gamers!!! ${getRoleMention(config.tiltedGamersRoleId)}`
+      `${getUserAsMention(
+        interaction.user
+      )} looking for some gamers!!! ${getRoleMention(
+        config.tiltedGamersRoleId
+      )}`
     );
   },
 };
