@@ -28,7 +28,6 @@ export const commands: Command[] = [
   Roll,
   Oops,
   Inhouse,
-  Queue,
   Ltg,
   TestDb,
   QueueV2,

@@ -18,8 +18,11 @@ const autocompleteConfig: CommandOptionsAutoCompleteConfig = {
   [QueueOptionNames.ACTION]: () => Object.values(QueueActions),
 };
 
+/**
+ * @deprecated
+ */
 export const Queue: Command = {
-  name: "q",
+  name: "q-old",
   description: "Queue commands",
   type: ApplicationCommandType.ChatInput,
   options: [

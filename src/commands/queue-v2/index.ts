@@ -28,8 +28,8 @@ const Options = {
 };
 
 export const QueueV2: Command = {
-  name: "q2",
-  description: "Queue v2",
+  name: "q",
+  description: "Assemble a french chef brigade",
   options: [
     {
       name: Options.SIZE,
