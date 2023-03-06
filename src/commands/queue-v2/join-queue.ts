@@ -4,7 +4,7 @@ import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
-import { getQueueTitle, getQueueSizeFromString as getNumberFromString } from "./utils";
+import { getQueueTitle, getNumberFromString } from "./utils";
 
 const id = 'q2-join';
 const label = 'Join queue';
@@ -30,8 +30,7 @@ export const JoinQueue: ButtonInteractionHandler = {
     const [queueField] = embed.data.fields;
     const { name, value: queuedUsersStr } = queueField;
     const currentQueuedUsers = denumberList(queuedUsersStr);
-    const remainingSlots = getNumberFromString(embed.title!);
-    const queueSize = remainingSlots + currentQueuedUsers.length;
+    const queueSize = getNumberFromString(embed.footer?.text!);
 
     if (currentQueuedUsers.includes(userMention)) {
       await interaction.reply({
@@ -44,7 +43,7 @@ export const JoinQueue: ButtonInteractionHandler = {
     const updatedQueuedUsers = [...currentQueuedUsers, userMention];
     const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers);
 
-    const isQueueFull = updatedQueuedUsers.length >= queueSize;
+    const isQueueFull = updatedQueuedUsers.length === queueSize;
 
     const updatedButtons =
       components[0].components.map((button) => button.customId === id ?

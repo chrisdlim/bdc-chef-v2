@@ -41,7 +41,10 @@ export const QueueV2: Command = {
             getUserAsMention(interaction.user)
           ])
         },
-      );
+      )
+      .setFooter({
+        text: `${queueSize} chefs for hire!`
+      });
 
     const embedActions = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(

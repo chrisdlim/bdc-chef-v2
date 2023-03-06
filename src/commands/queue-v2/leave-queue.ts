@@ -1,9 +1,10 @@
-import { ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, EmbedBuilder } from "discord.js";
 import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
-import { getQueueTitle, getQueueSizeFromString } from "./utils";
+import { getJoinQueueButton } from "./join-queue";
+import { getQueueTitle, getNumberFromString } from "./utils";
 
 const id = 'q2-leave';
 const label = 'Leave queue';
@@ -17,7 +18,7 @@ export const LeaveQueue: ButtonInteractionHandler = {
   id: 'q2-leave',
   label: 'Leave queue',
   run: async (interaction: ButtonInteraction) => {
-    const { user, message: { embeds } } = interaction;
+    const { user, message: { embeds, components } } = interaction;
     const [embed] = embeds;
     if (!embed || !embed.data.fields) {
       throw new SystemError('Welp, I don\'t know what to do here. Goodbye.');
@@ -27,7 +28,7 @@ export const LeaveQueue: ButtonInteractionHandler = {
     const [queueField] = embed.data.fields;
     const { name, value: queuedUsersStr } = queueField;
     const currentQueuedUsers = denumberList(queuedUsersStr);
-    const queueSizeFromDesc = getQueueSizeFromString(embed.title!);
+    const queueSize = getNumberFromString(embed.footer?.text!);
 
     if (!currentQueuedUsers.includes(userMention)) {
       await interaction.reply({
@@ -48,17 +49,27 @@ export const LeaveQueue: ButtonInteractionHandler = {
       return;
     }
 
+    const isQueueFull = updatedQueuedUsers.length === queueSize;
+
+    const updatedButtons =
+      components[0].components.map((button) => button.customId !== id ?
+        getJoinQueueButton(isQueueFull) : new ButtonBuilder(button.data))
+
+
     const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers);
     const updatedEmbed = {
       ...interaction.message.embeds[0].data,
       fields: [{ name, value: updatedQueuedUsersNumbered }],
       title: getQueueTitle(
-        queueSizeFromDesc + currentQueuedUsers.length,
+        queueSize,
         updatedQueuedUsers.length
       ),
     };
 
+    const updatedEmbedActions = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(updatedButtons)
+
     const editedEmbed = new EmbedBuilder(updatedEmbed);
-    await interaction.update({ embeds: [editedEmbed] });
+    await interaction.update({ embeds: [editedEmbed], components: [updatedEmbedActions] });
   }
 };
