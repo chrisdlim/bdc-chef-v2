@@ -5,9 +5,14 @@ type ChatOptions = {
   model?: string;
   temperature?: number;
   maxTokens?: number;
+  choiceSize?: number;
 };
 
-const DEFAULT_CHAT_MODEL = "text-davinci-003";
+const defaultModel = "text-davinci-003";
+const defaultTemperature = 0.5;
+const defaultMaxTokens = 1000;
+const defaultChoiceSize = 1;
+
 const config = getConfig();
 
 const configuration = new Configuration({
@@ -23,13 +28,14 @@ export const getPromptAnswer = (
   prompt: string,
   options: ChatOptions = {}
 ) => {
-  const { model, temperature, maxTokens } = options;
+  const { model, temperature, maxTokens, choiceSize } = options;
   return api
     .createCompletion({
-      model: model || DEFAULT_CHAT_MODEL,
+      model: model || defaultModel,
       prompt,
-      temperature: temperature || 0.5,
-      max_tokens: maxTokens || 1000,
+      temperature: temperature || defaultTemperature,
+      max_tokens: maxTokens || defaultMaxTokens,
+      n: choiceSize || defaultChoiceSize,
     })
     .then((response) => {
       console.log("Received ChatGpt response...");

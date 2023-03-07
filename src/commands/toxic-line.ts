@@ -4,19 +4,13 @@ import {
   ChatInputCommandInteraction,
   Client,
 } from "discord.js";
+import { CreateCompletionResponseChoicesInner } from "openai";
+import { getOpenAI, getPromptAnswer } from "../api";
 import getRandomElement from "../utils/get-random-element";
 import { getUserAsMention } from "../utils/user";
 import { Command } from "./types";
 
-const toxicLines = [
-  "hahahahah",
-  "lolololol",
-  "LIMFOW, LIMFOW",
-  "Go kick rocks",
-  "You need help from woojin?",
-  "I'm boomed",
-  "I hope you get cancer",
-];
+const openai = getOpenAI();
 
 export const ToxicLine: Command = {
   name: "toxic",
@@ -28,15 +22,19 @@ export const ToxicLine: Command = {
       description: "User",
       type: ApplicationCommandOptionType.User,
       required: true,
-    },
+    }
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const user = interaction.options.getUser("user", true);
     const userMention = getUserAsMention(user);
-    const randomToxicLine = getRandomElement(toxicLines);
-    await interaction.reply({
-      content: `Nice whiff ${userMention}. ${randomToxicLine}`,
-      tts: true,
+
+    await interaction.deferReply();
+
+    const insult = await getPromptAnswer(openai, 'generate an insult about someone\s valorant aim')
+      .then(({ data }) => data.choices[0].text);
+
+    await interaction.editReply({
+      content: `${userMention}, ${insult}`,
     });
   },
 };
