@@ -30,7 +30,7 @@ export const commands: Command[] = [
   QueueV2,
   Assemble,
   ToxicLine,
-  Cookout
+  Cookout,
 ];
 
 export const buttonHandlers: ButtonInteractionHandler[] = [

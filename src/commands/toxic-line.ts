@@ -4,9 +4,7 @@ import {
   ChatInputCommandInteraction,
   Client,
 } from "discord.js";
-import { CreateCompletionResponseChoicesInner } from "openai";
-import { getOpenAI, getPromptAnswer } from "../api";
-import getRandomElement from "../utils/get-random-element";
+import { askChatGpt, getOpenAI } from "../api";
 import { getUserAsMention } from "../utils/user";
 import { Command } from "./types";
 
@@ -22,7 +20,7 @@ export const ToxicLine: Command = {
       description: "User",
       type: ApplicationCommandOptionType.User,
       required: true,
-    }
+    },
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const user = interaction.options.getUser("user", true);
@@ -30,8 +28,8 @@ export const ToxicLine: Command = {
 
     await interaction.deferReply();
 
-    const insult = await getPromptAnswer(openai, 'generate an insult about someone\s valorant aim')
-      .then(({ data }) => data.choices[0].text);
+    const insultPrompt = "generate an insult about someone's valorant aim";
+    const insult = await askChatGpt(openai, insultPrompt);
 
     await interaction.editReply({
       content: `${userMention}, ${insult}`,

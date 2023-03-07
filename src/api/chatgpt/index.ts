@@ -50,3 +50,15 @@ export const getFirstPromptResponse = (
   response: CreateCompletionResponse,
   defaultResponse: string
 ): string => response.choices.pop()?.text || defaultResponse;
+
+export const askChatGpt = async (openai: OpenAIApi, message: string) => {
+  const defaultResponse = `Oops, I'm not sure how to reply, but go f yourself, shitter. Back in the kitchen please!`;
+  const reply = await getPromptAnswer(openai, message)
+    .then(({ data }) => getFirstPromptResponse(data, defaultResponse))
+    .catch(() => {
+      // Error in case of rate limit or weird openai error response
+      return defaultResponse;
+    });
+
+  return reply;
+};

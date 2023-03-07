@@ -13,9 +13,9 @@ export const Cookout: Command = {
   description: "Yo, who's down for good ol' fashion burger?",
   type: ApplicationCommandType.ChatInput,
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
-    await interaction.reply('AYYYYOOOOO, COOKOUT?');
+    await interaction.reply("AYYYYOOOOO, COOKOUT?");
 
-    const cookoutGifs = await getGiphyBySearch('cookout');
+    const cookoutGifs = await getGiphyBySearch("cookout");
     const randomGif = getRandomElement<Gif>(cookoutGifs);
     await interaction.followUp(randomGif.embed_url);
   },

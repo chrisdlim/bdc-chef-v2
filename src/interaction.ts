@@ -3,23 +3,16 @@ import {
   ButtonInteraction,
   ChatInputCommandInteraction,
   Client,
-  EmbedBuilder,
   Events,
   Interaction,
   Message,
-  MessageInteraction,
 } from "discord.js";
 import {
   findButtonHandlerByInteraction,
   findCommandByInteraction,
 } from "./commands";
-import {
-  getPromptAnswer,
-  getFirstPromptResponse,
-  getOpenAI,
-} from "./api/chatgpt";
-import { getUserAsMention, isUserMentioned } from "./utils/user";
-import { numberedList } from "./utils/text";
+import { getOpenAI, askChatGpt } from "./api/chatgpt";
+import { isUserMentioned } from "./utils/user";
 
 export const registerInteractions = (client: Client<true>): void => {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
@@ -38,20 +31,13 @@ export const registerInteractions = (client: Client<true>): void => {
     const { content } = message;
     const isBotMentioned =
       isUserMentioned(message, client.user) &&
-      message.mentions.users.size === 1 &&
       message.author.id !== client.user.id;
 
     if (isBotMentioned) {
-      const defaultResponse = `Oops, I'm not sure how to reply, but go f yourself, shitter. Back in the kitchen please!`;
-      const openaiApi = getOpenAI();
       const botMsg = await message.reply("Thinking...");
-      const messageReply = await getPromptAnswer(openaiApi, content)
-        .then(({ data }) => getFirstPromptResponse(data, defaultResponse))
-        .catch(() => {
-          // Error in case of rate limit or weird openai error response
-          return defaultResponse;
-        });
-      await botMsg.edit(messageReply);
+      const openai = getOpenAI();
+      const reply = await askChatGpt(openai, content);
+      await botMsg.edit(reply);
     }
   });
 };
