@@ -19,9 +19,9 @@ import { Assemble, QueueV2 } from "./queue-v2";
 import { JoinQueue } from "./queue-v2/join-queue";
 import { LeaveQueue } from "./queue-v2/leave-queue";
 import { ToxicLine } from "./toxic-line";
+import { Cookout } from "./cookout";
 
 export const commands: Command[] = [
-  Ping,
   Test,
   LetHimCook,
   Cookoff,
@@ -33,6 +33,7 @@ export const commands: Command[] = [
   QueueV2,
   Assemble,
   ToxicLine,
+  Cookout
 ];
 
 export const buttonHandlers: ButtonInteractionHandler[] = [

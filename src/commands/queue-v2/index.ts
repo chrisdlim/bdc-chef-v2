@@ -29,7 +29,7 @@ const Options = {
 
 export const QueueV2: Command = {
   name: "q",
-  description: "Assemble a french chef brigade",
+  description: "Assemble a french brigade",
   options: [
     {
       name: Options.SIZE,
