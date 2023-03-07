@@ -5,14 +5,11 @@ import {
   Client,
   Events,
   Interaction,
-  Message,
 } from "discord.js";
 import {
   findButtonHandlerByInteraction,
   findCommandByInteraction,
 } from "./commands";
-import { getOpenAI, askChatGpt } from "./api/chatgpt";
-import { isUserMentioned } from "./utils/user";
 
 export const registerInteractions = (client: Client<true>): void => {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
@@ -27,19 +24,20 @@ export const registerInteractions = (client: Client<true>): void => {
     }
   });
 
-  client.on(Events.MessageCreate, async (message: Message) => {
-    const { content } = message;
-    const isBotMentioned =
-      isUserMentioned(message, client.user) &&
-      message.author.id !== client.user.id;
+  // Old way of initiating chatgpt with bot
+  // client.on(Events.MessageCreate, async (message: Message) => {
+  //   const { content } = message;
+  //   const isBotMentioned =
+  //     isUserMentioned(message, client.user) &&
+  //     message.author.id !== client.user.id;
 
-    if (isBotMentioned) {
-      const botMsg = await message.reply("Thinking...");
-      const openai = getOpenAI();
-      const reply = await askChatGpt(openai, content);
-      await botMsg.edit(reply);
-    }
-  });
+  //   if (isBotMentioned) {
+  //     const botMsg = await message.reply("Thinking...");
+  //     const openai = getOpenAI();
+  //     const reply = await askChatGpt(openai, content);
+  //     await botMsg.edit(reply);
+  //   }
+  // });
 };
 
 const handleCommand = async (

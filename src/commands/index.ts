@@ -17,6 +17,7 @@ import { JoinQueue } from "./queue-v2/join-queue";
 import { LeaveQueue } from "./queue-v2/leave-queue";
 import { ToxicLine } from "./toxic-line";
 import { Cookout } from "./cookout";
+import { AskChatGpt } from "./ask-chatgpt";
 
 export const commands: Command[] = [
   Test,
@@ -31,6 +32,7 @@ export const commands: Command[] = [
   Assemble,
   ToxicLine,
   Cookout,
+  AskChatGpt,
 ];
 
 export const buttonHandlers: ButtonInteractionHandler[] = [
