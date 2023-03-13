@@ -33,18 +33,21 @@ export const Inhouse: Command = {
     // let vcMembers: string[] = [];
 
     // Auto-generate at least 10 for testing purposes
-    // if(vcMembers.length < 10) {
-    //   const testMembers = generateRandomParticipants(10 - vcMembers.length);
-    //   vcMembers = vcMembers.concat(testMembers);
-    // }
+    if (vcMembers.length < 10) {
+      const testMembers = generateRandomParticipants(10 - vcMembers.length);
+      vcMembers = vcMembers.concat(testMembers);
+    }
 
     let teams = inhouseMatchmaking(vcMembers);
-    let t1 = teams.slice(0, 6);
+    let t1 = teams.slice(0, 5);
     let t2 = teams.slice(5);
+
     // let t1 = teams.slice(0, 6).map(i => userMention(i));
     // let t2 = teams.slice(5).map(i => userMention(i));
 
     // await interaction.reply(`Team 1: <@${yoink}>, , ${userMention(t1[3])}, ${userMention(t1[4])}, ${userMention(t1[5])} `);
-    await interaction.reply(`Team 1: ${t1} \nTeam 2: ${t2}`);
+    await interaction.reply(
+      `Team 1:\n-----\n${t1.join("\n")} \n\nTeam 2:\n-----\n${t2.join("\n")}`
+    );
   },
 };
