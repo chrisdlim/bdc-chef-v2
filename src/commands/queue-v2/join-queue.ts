@@ -74,5 +74,11 @@ export const JoinQueue: ButtonInteractionHandler = {
       embeds: [editedEmbed],
       components: [updatedEmbedActions],
     });
+
+    if (isQueueFull) {
+      await interaction.followUp({
+        content: ['OOOOOOORDER UP, We got a full french brigade!', updatedQueuedUsersNumbered].join('\n')
+      });
+    }
   },
 };
