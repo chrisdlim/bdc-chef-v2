@@ -16,6 +16,7 @@ export const Duo: Command = {
       name: 'user',
       description: 'Your sous chef',
       type: ApplicationCommandOptionType.User,
+      required: true
     }
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
