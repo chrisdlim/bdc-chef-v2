@@ -18,6 +18,7 @@ import { LeaveQueue } from "./queue-v2/leave-queue";
 import { ToxicLine } from "./toxic-line";
 import { Cookout } from "./cookout";
 import { AskChatGpt } from "./ask-chatgpt";
+import { Duo } from "./duo";
 
 export const commands: Command[] = [
   Test,
@@ -33,6 +34,7 @@ export const commands: Command[] = [
   ToxicLine,
   Cookout,
   AskChatGpt,
+  Duo,
 ];
 
 export const buttonHandlers: ButtonInteractionHandler[] = [
