@@ -24,6 +24,8 @@ const config = getConfig();
 
 const defaultQueueSize = 5;
 
+const defaultTimeoutMinutes = 30;
+
 const defaultFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
 const getTimeoutMs = (minutes: number) => minutes * 1000 * 60;
@@ -55,14 +57,11 @@ export const QueueV2: Command = {
     interaction: ChatInputCommandInteraction<CacheType>
   ): Promise<void> {
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
-    const timeoutMinutes = interaction.options.getInteger(Options.TIMEOUT) || 0;
+    const timeoutMinutes = interaction.options.getInteger(Options.TIMEOUT) || defaultTimeoutMinutes;
     const timeout = getTimeoutMs(timeoutMinutes);
-    
     const queueSize =
-    inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
-
-    const queueExpirationText = timeout ? getQueueExpirationText(timeoutMinutes) : '';
-
+      inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
+    const queueExpirationText = getQueueExpirationText(timeoutMinutes);
     const footerText = [defaultFooterText(queueSize), queueExpirationText].join('\n');
 
     const embed = new EmbedBuilder()
