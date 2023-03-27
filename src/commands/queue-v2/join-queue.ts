@@ -41,13 +41,13 @@ export const JoinQueue: ButtonInteractionHandler = {
     const currentQueuedUsers = denumberList(queuedUsersStr);
     const queueSize = getNumberFromString(embed.footer?.text!);
 
-    // if (currentQueuedUsers.includes(userMention)) {
-    //   await interaction.reply({
-    //     content: "You are already a master chef",
-    //     ephemeral: true,
-    //   });
-    //   return;
-    // }
+    if (currentQueuedUsers.includes(userMention)) {
+      await interaction.reply({
+        content: "You are already a master chef",
+        ephemeral: true,
+      });
+      return;
+    }
 
     const updatedQueuedUsers = [...currentQueuedUsers, userMention];
     const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers);
