@@ -28,9 +28,7 @@ const defaultFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
 const getTimeoutMs = (minutes: number) => minutes * 1000 * 60;
 
-const getQueueExpirationText = (currentTime: Date, timeout: number, timeoutMinutes: number) => 
-  `Queue expires at ${new Date(currentTime.getTime() + timeout)
-      .toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} in ${timeoutMinutes} minute(s)`;
+const getQueueExpirationText = (timeoutMinutes: number) => `Queue expires in ${timeoutMinutes} minute(s)`;
 
 const Options = {
   SIZE: "size",
@@ -62,17 +60,15 @@ export const QueueV2: Command = {
     
     const queueSize =
     inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
-    
-    const currentTime = new Date();
 
-    const queueExpirationText = timeout ? getQueueExpirationText(currentTime, timeout, timeoutMinutes) : '';
+    const queueExpirationText = timeout ? getQueueExpirationText(timeoutMinutes) : '';
 
     const footerText = [defaultFooterText(queueSize), queueExpirationText].join('\n');
 
     const embed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(getQueueTitle(queueSize, 1))
-      .setTimestamp(currentTime)
+      .setTimestamp(new Date())
       .addFields({
         name: "Chefs on standby:",
         value: numberedList([getUserAsMention(interaction.user)]),
