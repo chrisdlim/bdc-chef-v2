@@ -21,16 +21,11 @@ import { getLeaveQueueButton } from "./leave-queue";
 import { getQueueTitle } from "./utils";
 
 const config = getConfig();
-
 const defaultQueueSize = 5;
-
 const defaultTimeoutMinutes = 30;
-
-const defaultFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
-
+const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 const getTimeoutMs = (minutes: number) => minutes * 1000 * 60;
-
-const getQueueExpirationText = (timeoutMinutes: number) => `Queue expires in ${timeoutMinutes} minute(s)`;
+const getQueueExpirationText = (timeoutMinutes: number) => `${timeoutMinutes} minutes`;
 
 const Options = {
   SIZE: "size",
@@ -62,16 +57,22 @@ export const QueueV2: Command = {
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
     const queueExpirationText = getQueueExpirationText(timeoutMinutes);
-    const footerText = [defaultFooterText(queueSize), queueExpirationText].join('\n');
+    const footerText = getFooterText(queueSize);
 
     const embed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(getQueueTitle(queueSize, 1))
       .setTimestamp(new Date())
-      .addFields({
-        name: "Chefs on standby:",
-        value: numberedList([getUserAsMention(interaction.user)]),
-      })
+      .addFields(
+        {
+          name: "Chefs on standby:",
+          value: numberedList([getUserAsMention(interaction.user)]),
+        },
+        {
+          name: "Expires in:",
+          value: queueExpirationText,
+        }
+      )
       .setFooter({
         text: footerText,
       });
