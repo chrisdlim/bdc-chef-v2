@@ -2,12 +2,12 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   EmbedBuilder,
+  italic,
 } from "@discordjs/builders";
 import {
   Client,
   ChatInputCommandInteraction,
   CacheType,
-  ButtonStyle,
   ApplicationCommandOptionType,
 } from "discord.js";
 import { getGiphyBySearch } from "../../api";
@@ -16,15 +16,19 @@ import { getRandomElement } from "../../utils/random";
 import { getRoleMention, numberedList } from "../../utils/text";
 import { getUserAsMention, getUserWithDiscriminator } from "../../utils/user";
 import { Command } from "../types";
-import { getJoinQueueButton, JoinQueue } from "./join-queue";
-import { getLeaveQueueButton, LeaveQueue } from "./leave-queue";
+import { getJoinQueueButton } from "./join-queue";
+import { getLeaveQueueButton } from "./leave-queue";
 import { getQueueTitle } from "./utils";
 
 const config = getConfig();
 
 const defaultQueueSize = 5;
+
+const getTimeoutMs = (minutes: number) => minutes * 1000 * 60;
+
 const Options = {
   SIZE: "size",
+  TIMEOUT: 'timeout',
 };
 
 export const QueueV2: Command = {
@@ -36,12 +40,19 @@ export const QueueV2: Command = {
       description: "Queue size",
       type: ApplicationCommandOptionType.Integer,
     },
+    {
+      name: Options.TIMEOUT,
+      description: "Minutes for queue to be active",
+      type: ApplicationCommandOptionType.Integer,
+    },
   ],
   run: async function (
     _client: Client<boolean>,
     interaction: ChatInputCommandInteraction<CacheType>
   ): Promise<void> {
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
+    const timeoutMinutes = interaction.options.getInteger(Options.TIMEOUT);
+
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
 
@@ -65,6 +76,13 @@ export const QueueV2: Command = {
     await interaction.reply({
       embeds: [embed],
       components: [embedActions],
+    }).then(() => {
+      if (timeoutMinutes) {
+        setTimeout(async () => {
+          await interaction.deleteReply();
+          await interaction.followUp(`Welp, we're out of food. Come back later! ${italic('(Timeout expired)')}`);
+        }, getTimeoutMs(timeoutMinutes));
+      }
     });
   },
 };

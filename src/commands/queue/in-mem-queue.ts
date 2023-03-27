@@ -1,7 +1,7 @@
-import { ChatInputCommandInteraction, User } from "discord.js";
+import { bold, ChatInputCommandInteraction, User } from "discord.js";
 import { getUserAsMention, getUserWithDiscriminator } from "../../utils/user";
 import { QueueActions } from "./constants";
-import { bold, numberedList } from "../../utils/text";
+import { numberedList } from "../../utils/text";
 import { SystemError } from "../../error/system-error";
 import { getConfig } from "../../config";
 
