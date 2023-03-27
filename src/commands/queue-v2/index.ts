@@ -24,7 +24,13 @@ const config = getConfig();
 
 const defaultQueueSize = 5;
 
+const defaultFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
+
 const getTimeoutMs = (minutes: number) => minutes * 1000 * 60;
+
+const getQueueExpirationText = (currentTime: Date, timeout: number, timeoutMinutes: number) => 
+  `Queue expires at ${new Date(currentTime.getTime() + timeout)
+      .toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} in ${timeoutMinutes} minute(s)`;
 
 const Options = {
   SIZE: "size",
@@ -51,21 +57,28 @@ export const QueueV2: Command = {
     interaction: ChatInputCommandInteraction<CacheType>
   ): Promise<void> {
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
-    const timeoutMinutes = interaction.options.getInteger(Options.TIMEOUT);
-
+    const timeoutMinutes = interaction.options.getInteger(Options.TIMEOUT) || 0;
+    const timeout = getTimeoutMs(timeoutMinutes);
+    
     const queueSize =
-      inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
+    inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
+    
+    const currentTime = new Date();
+
+    const queueExpirationText = timeout ? getQueueExpirationText(currentTime, timeout, timeoutMinutes) : '';
+
+    const footerText = [defaultFooterText(queueSize), queueExpirationText].join('\n');
 
     const embed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(getQueueTitle(queueSize, 1))
-      .setTimestamp(new Date())
+      .setTimestamp(currentTime)
       .addFields({
         name: "Chefs on standby:",
         value: numberedList([getUserAsMention(interaction.user)]),
       })
       .setFooter({
-        text: `${queueSize} chefs for hire!`,
+        text: footerText,
       });
 
     const embedActions = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -77,11 +90,11 @@ export const QueueV2: Command = {
       embeds: [embed],
       components: [embedActions],
     }).then(() => {
-      if (timeoutMinutes) {
+      if (timeout) {
         setTimeout(async () => {
           await interaction.deleteReply();
-          await interaction.followUp(`Welp, we're out of food. Come back later! ${italic('(Timeout expired)')}`);
-        }, getTimeoutMs(timeoutMinutes));
+          await interaction.followUp(`Welp, we're out of food. Come back later! ${italic('(Queue expired)')}`);
+        }, timeout);
       }
     });
   },
