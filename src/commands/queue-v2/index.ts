@@ -22,10 +22,7 @@ import { getQueueTitle } from "./utils";
 
 const config = getConfig();
 const defaultQueueSize = 5;
-const defaultTimeoutMinutes = 30;
 const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
-const getTimeoutMs = (minutes: number) => minutes * 1000 * 60;
-const getQueueExpirationText = (timeoutMinutes: number) => `${timeoutMinutes} minutes`;
 
 const Options = {
   SIZE: "size",
@@ -52,11 +49,8 @@ export const QueueV2: Command = {
     interaction: ChatInputCommandInteraction<CacheType>
   ): Promise<void> {
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
-    const timeoutMinutes = interaction.options.getInteger(Options.TIMEOUT) || defaultTimeoutMinutes;
-    const timeout = getTimeoutMs(timeoutMinutes);
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
-    const queueExpirationText = getQueueExpirationText(timeoutMinutes);
     const footerText = getFooterText(queueSize);
 
     const embed = new EmbedBuilder()
@@ -68,10 +62,6 @@ export const QueueV2: Command = {
           name: "Chefs on standby:",
           value: numberedList([getUserAsMention(interaction.user)]),
         },
-        {
-          name: "Expires in:",
-          value: queueExpirationText,
-        }
       )
       .setFooter({
         text: footerText,
@@ -85,13 +75,6 @@ export const QueueV2: Command = {
     await interaction.reply({
       embeds: [embed],
       components: [embedActions],
-    }).then(() => {
-      if (timeout) {
-        setTimeout(async () => {
-          await interaction.deleteReply();
-          await interaction.followUp(`Welp, we're out of food. Come back later! ${italic('(Queue expired)')}`);
-        }, timeout);
-      }
     });
   },
 };
