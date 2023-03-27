@@ -35,7 +35,7 @@ export const LeaveQueue: ButtonInteractionHandler = {
     }
 
     const userMention = getUserAsMention(user);
-    const [queueField] = embed.data.fields;
+    const [queueField, ...remainingFields] = embed.data.fields;
     const { name, value: queuedUsersStr } = queueField;
     const currentQueuedUsers = denumberList(queuedUsersStr);
     const queueSize = getNumberFromString(embed.footer?.text!);
@@ -73,7 +73,7 @@ export const LeaveQueue: ButtonInteractionHandler = {
     const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers);
     const updatedEmbed = {
       ...interaction.message.embeds[0].data,
-      fields: [{ name, value: updatedQueuedUsersNumbered }],
+      fields: [{ name, value: updatedQueuedUsersNumbered }, ...remainingFields],
       title: getQueueTitle(queueSize, updatedQueuedUsers.length),
     };
 
