@@ -26,7 +26,6 @@ const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
 const Options = {
   SIZE: "size",
-  TIMEOUT: 'timeout',
 };
 
 export const QueueV2: Command = {
@@ -36,11 +35,6 @@ export const QueueV2: Command = {
     {
       name: Options.SIZE,
       description: "Queue size",
-      type: ApplicationCommandOptionType.Integer,
-    },
-    {
-      name: Options.TIMEOUT,
-      description: "Minutes for queue to be active",
       type: ApplicationCommandOptionType.Integer,
     },
   ],
