@@ -16,7 +16,6 @@ import { getBumpQueueButton } from "./bump-queue";
 import { getJoinQueueButton } from "./join-queue";
 import { getLeaveQueueButton } from "./leave-queue";
 import { getQueueTitle } from "./utils";
-import { updatePoints } from './points';
 
 const defaultQueueSize = 5;
 const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
@@ -69,8 +68,6 @@ export const QueueV2: Command = {
     await interaction.reply({
       embeds: [embed],
       components: [embedActions],
-    }).then(async () => {
-      await updatePoints(user, 'start');
     });
   },
 };

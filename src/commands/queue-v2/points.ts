@@ -8,38 +8,18 @@ const client = getMongoClient();
 const pointsCollection = client.db('chef').collection('points');
 
 const PointsActionMap = {
-  'start': 10,
-  'join': 5,
-  'leave': -2
+  'join': 10,
+  'leave': -5
 } as const
 
-export const updatePoints = async (user: User, action: keyof typeof PointsActionMap) => {
-  switch (action) {
-    case 'start':
-    case 'join':
-      return await addPoints(user, PointsActionMap[action]);
-    case 'leave':
-      return await deductPoints(user, PointsActionMap[action]);
-    default:
-      break;
-  }
+export const updatePoints = async (user: Pick<User, 'id'>, action: keyof typeof PointsActionMap) => {
+  const points = PointsActionMap[action];
+  return await upsertPoints(user, points);
 }
 
-const addPoints = async (user: User, points: number) => {
+const upsertPoints = async (user: Pick<User, 'id'>, points: number) => {
   await pointsCollection.updateOne({
     user: user.id
-  }, {
-    $inc: {
-      points
-    }
-  }, {
-    upsert: true
-  });
-}
-
-const deductPoints = async (user: User, points: number) => {
-  await pointsCollection.updateOne({
-    user: user.id,
   }, {
     $inc: {
       points

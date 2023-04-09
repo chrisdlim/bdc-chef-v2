@@ -74,13 +74,17 @@ export const JoinQueue: ButtonInteractionHandler = {
     await interaction.update({
       embeds: [editedEmbed],
       components: [updatedEmbedActions],
-    }).then(async () => {
-      await updatePoints(user, 'join');
     });
 
     if (isQueueFull) {
       await interaction.followUp({
         content: ['OOOOOOORDER UP, We got a full french brigade!', updatedQueuedUsersNumbered].join('\n')
+      }).then(async () => {
+        await Promise.all(updatedQueuedUsers.map((userMention: string) => {
+          const id = getNumberFromString(userMention).toString();
+          return updatePoints({ id }, 'join');
+        }))
+        console.log(updatedQueuedUsers)
       });
     }
   },
