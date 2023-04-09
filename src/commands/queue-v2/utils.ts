@@ -5,5 +5,8 @@ export const getQueueTitle = (size: number, currentQueueSize: number) => {
   return `Lookin' for ${size - currentQueueSize} more gamer(s)`;
 };
 
-export const getNumberFromString = (value: string): number =>
-  +value.replace(/[^0-9]/g, "");
+export const getNumberStringFromString = (value: string): string => value.replace(/[^0-9]/g, "");
+
+export const getNumberFromString = (value: string): number => {
+  return +getNumberStringFromString(value);
+}

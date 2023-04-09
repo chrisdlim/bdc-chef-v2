@@ -12,14 +12,14 @@ const PointsActionMap = {
   'leave': -5
 } as const
 
-export const updatePoints = async (user: Pick<User, 'id'>, action: keyof typeof PointsActionMap) => {
+export const updatePoints = async (userId: string, action: keyof typeof PointsActionMap) => {
   const points = PointsActionMap[action];
-  return await upsertPoints(user, points);
+  return await upsertPoints(userId, points);
 }
 
-const upsertPoints = async (user: Pick<User, 'id'>, points: number) => {
+const upsertPoints = async (userId: string, points: number) => {
   await pointsCollection.updateOne({
-    user: user.id
+    user: userId
   }, {
     $inc: {
       points
@@ -49,12 +49,11 @@ export const ListPoints: Command = {
       pointsCollection.find().sort({ points: -1 }).limit(limit) 
         : pointsCollection.find().sort({ points: -1 });
 
-    const userPointDocuments = await pointsCollection.find().sort({ points: -1 }).toArray();
+    const userPointDocuments = await query.toArray();
 
     if (userPointDocuments.length) {
-      const userPoints = await pointsCollection.find().sort({ points: -1 }).toArray()
-        .then((result) => result
-          .map(({ user: id, points }) => `${getUserAsMention({ id })} - ${(+points).toLocaleString()}`));
+      const userPoints = userPointDocuments
+        .map(({ user: id, points }) => `${getUserAsMention({ id })} - ${(+points).toLocaleString()}`);
       await interaction.reply(numberedList(userPoints));
     } else {
       await interaction.reply({ content: 'No one points for any of the shitters yet.', ephemeral: true });

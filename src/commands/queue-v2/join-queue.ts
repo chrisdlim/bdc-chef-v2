@@ -10,7 +10,7 @@ import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
 import { updatePoints } from "./points";
-import { getQueueTitle, getNumberFromString } from "./utils";
+import { getQueueTitle, getNumberFromString, getNumberStringFromString } from "./utils";
 
 export const id = "q2-join";
 const label = "Join";
@@ -81,10 +81,9 @@ export const JoinQueue: ButtonInteractionHandler = {
         content: ['OOOOOOORDER UP, We got a full french brigade!', updatedQueuedUsersNumbered].join('\n')
       }).then(async () => {
         await Promise.all(updatedQueuedUsers.map((userMention: string) => {
-          const id = getNumberFromString(userMention).toString();
-          return updatePoints({ id }, 'join');
+          const id = getNumberStringFromString(userMention);
+          return updatePoints(id, 'join');
         }))
-        console.log(updatedQueuedUsers)
       });
     }
   },
