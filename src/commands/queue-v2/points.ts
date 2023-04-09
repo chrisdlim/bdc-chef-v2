@@ -38,7 +38,6 @@ const addPoints = async (user: User, points: number) => {
 }
 
 const deductPoints = async (user: User, points: number) => {
-  console.log('deducting', points);
   await pointsCollection.updateOne({
     user: user.id,
   }, {

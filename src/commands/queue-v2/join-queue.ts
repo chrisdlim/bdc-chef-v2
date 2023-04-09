@@ -12,7 +12,7 @@ import { ButtonInteractionHandler } from "../types";
 import { updatePoints } from "./points";
 import { getQueueTitle, getNumberFromString } from "./utils";
 
-const id = "q2-join";
+export const id = "q2-join";
 const label = "Join";
 
 export const getJoinQueueButton = (isDisabled = false) =>

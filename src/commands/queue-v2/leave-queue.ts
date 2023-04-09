@@ -12,6 +12,7 @@ import { ButtonInteractionHandler } from "../types";
 import { getJoinQueueButton } from "./join-queue";
 import { updatePoints } from "./points";
 import { getQueueTitle, getNumberFromString } from "./utils";
+import { id as JoinButtonId } from './join-queue';
 
 const id = "q2-leave";
 const label = "Leave";
@@ -68,7 +69,7 @@ export const LeaveQueue: ButtonInteractionHandler = {
     const isQueueFull = updatedQueuedUsers.length === queueSize;
 
     const updatedButtons = components[0].components.map((button) =>
-      button.customId !== id
+      button.customId === JoinButtonId
         ? getJoinQueueButton(isQueueFull)
         : new ButtonBuilder(button.data)
     );
