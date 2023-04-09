@@ -1,15 +1,10 @@
-import { ActionRowBuilder } from "@discordjs/builders";
 import {
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
-  EmbedBuilder,
 } from "discord.js";
 import { SystemError } from "../../error/system-error";
-import { denumberList, numberedList } from "../../utils/text";
-import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
-import { getQueueTitle, getNumberFromString } from "./utils";
 
 const id = "q2-bump";
 const label = "Bump";

@@ -12,7 +12,7 @@ import { ButtonInteractionHandler, Command } from "./types";
 import { Roll } from "./roll";
 import { Ltg } from "./ltg";
 import { TestDb } from "./test-db";
-import { Assemble, QueueV2 } from "./queue-v2";
+import { QueueV2 } from "./queue-v2";
 import { JoinQueue } from "./queue-v2/join-queue";
 import { LeaveQueue } from "./queue-v2/leave-queue";
 import { ToxicLine } from "./toxic-line";
@@ -20,6 +20,8 @@ import { Cookout } from "./cookout";
 import { AskChatGpt } from "./ask-chatgpt";
 import { Duo } from "./duo";
 import { BumpQueue } from "./queue-v2/bump-queue";
+import { Assemble } from "./assemble";
+import { ListPoints } from "./queue-v2/points";
 
 export const commands: Command[] = [
   Test,
@@ -36,6 +38,7 @@ export const commands: Command[] = [
   Cookout,
   AskChatGpt,
   Duo,
+  ListPoints
 ];
 
 export const buttonHandlers: ButtonInteractionHandler[] = [

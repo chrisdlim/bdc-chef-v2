@@ -2,7 +2,6 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   EmbedBuilder,
-  italic,
 } from "@discordjs/builders";
 import {
   Client,
@@ -10,18 +9,15 @@ import {
   CacheType,
   ApplicationCommandOptionType,
 } from "discord.js";
-import { getGiphyBySearch } from "../../api";
-import { getConfig } from "../../config";
-import { getRandomElement } from "../../utils/random";
-import { getRoleMention, numberedList } from "../../utils/text";
-import { getUserAsMention, getUserWithDiscriminator } from "../../utils/user";
+import { numberedList } from "../../utils/text";
+import { getUserAsMention } from "../../utils/user";
 import { Command } from "../types";
 import { getBumpQueueButton } from "./bump-queue";
 import { getJoinQueueButton } from "./join-queue";
 import { getLeaveQueueButton } from "./leave-queue";
 import { getQueueTitle } from "./utils";
+import { updatePoints } from './points';
 
-const config = getConfig();
 const defaultQueueSize = 5;
 const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
@@ -43,6 +39,8 @@ export const QueueV2: Command = {
     _client: Client<boolean>,
     interaction: ChatInputCommandInteraction<CacheType>
   ): Promise<void> {
+    const { user } = interaction;
+
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
@@ -55,7 +53,7 @@ export const QueueV2: Command = {
       .addFields(
         {
           name: "Chefs on standby:",
-          value: numberedList([getUserAsMention(interaction.user)]),
+          value: numberedList([getUserAsMention(user)]),
         },
       )
       .setFooter({
@@ -71,28 +69,9 @@ export const QueueV2: Command = {
     await interaction.reply({
       embeds: [embed],
       components: [embedActions],
+    }).then(async () => {
+      await updatePoints(user, 'start');
     });
   },
 };
 
-export const Assemble: Command = {
-  name: "assemble",
-  description: "Assemble gamers",
-  run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
-    if (
-      !config.powerfulUser.includes(getUserWithDiscriminator(interaction.user))
-    ) {
-      await interaction.reply("You do not have the power to assemble...");
-      const noPowerGifs = await getGiphyBySearch("you+have+no+power");
-      const { embed_url: gifUrl } = getRandomElement(noPowerGifs);
-      await interaction.followUp(gifUrl);
-    } else {
-      await interaction.reply(
-        `${getUserAsMention(
-          interaction.user
-        )} wants to assemble! ${getRoleMention(config.tiltedGamersRoleId)}`
-      );
-      await QueueV2.run(_client, interaction);
-    }
-  },
-};

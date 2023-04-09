@@ -10,10 +10,11 @@ import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
 import { getJoinQueueButton } from "./join-queue";
+import { updatePoints } from "./points";
 import { getQueueTitle, getNumberFromString } from "./utils";
 
 const id = "q2-leave";
-const label = "Leave queue";
+const label = "Leave";
 
 export const getLeaveQueueButton = () =>
   new ButtonBuilder()
@@ -58,6 +59,8 @@ export const LeaveQueue: ButtonInteractionHandler = {
         content: "Kitchen is closed! Everyone left the queue.",
         embeds: [],
         components: [],
+      }).then(async () => {
+        await updatePoints(user, 'leave');
       });
       return;
     }
@@ -84,6 +87,8 @@ export const LeaveQueue: ButtonInteractionHandler = {
     await interaction.update({
       embeds: [editedEmbed],
       components: [updatedEmbedActions],
+    }).then(async () => {
+      await updatePoints(user, 'leave');
     });
   },
 };

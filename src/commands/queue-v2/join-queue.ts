@@ -9,6 +9,7 @@ import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
+import { updatePoints } from "./points";
 import { getQueueTitle, getNumberFromString } from "./utils";
 
 const id = "q2-join";
@@ -73,6 +74,8 @@ export const JoinQueue: ButtonInteractionHandler = {
     await interaction.update({
       embeds: [editedEmbed],
       components: [updatedEmbedActions],
+    }).then(async () => {
+      await updatePoints(user, 'join');
     });
 
     if (isQueueFull) {
