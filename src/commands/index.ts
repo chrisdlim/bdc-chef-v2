@@ -19,6 +19,7 @@ import { ToxicLine } from "./toxic-line";
 import { Cookout } from "./cookout";
 import { AskChatGpt } from "./ask-chatgpt";
 import { Duo } from "./duo";
+import { BumpQueue } from "./queue-v2/bump-queue";
 
 export const commands: Command[] = [
   Test,
@@ -40,6 +41,7 @@ export const commands: Command[] = [
 export const buttonHandlers: ButtonInteractionHandler[] = [
   JoinQueue,
   LeaveQueue,
+  BumpQueue
 ];
 
 export const registerApplicationCommands = (client: Client<true>) => {

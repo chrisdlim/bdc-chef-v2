@@ -23,7 +23,7 @@ export const getLeaveQueueButton = () =>
 
 export const LeaveQueue: ButtonInteractionHandler = {
   id: "q2-leave",
-  label: "Leave queue",
+  label: "Leave",
   run: async (interaction: ButtonInteraction) => {
     const {
       user,

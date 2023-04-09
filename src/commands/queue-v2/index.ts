@@ -16,6 +16,7 @@ import { getRandomElement } from "../../utils/random";
 import { getRoleMention, numberedList } from "../../utils/text";
 import { getUserAsMention, getUserWithDiscriminator } from "../../utils/user";
 import { Command } from "../types";
+import { getBumpQueueButton } from "./bump-queue";
 import { getJoinQueueButton } from "./join-queue";
 import { getLeaveQueueButton } from "./leave-queue";
 import { getQueueTitle } from "./utils";
@@ -63,7 +64,8 @@ export const QueueV2: Command = {
 
     const embedActions = new ActionRowBuilder<ButtonBuilder>().addComponents(
       getJoinQueueButton(),
-      getLeaveQueueButton()
+      getLeaveQueueButton(),
+      getBumpQueueButton(),
     );
 
     await interaction.reply({
