@@ -9,7 +9,8 @@ import {
   CacheType,
   ApplicationCommandOptionType,
 } from "discord.js";
-import { numberedList } from "../../utils/text";
+import { getConfig } from "../../config";
+import { getRoleMention, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { Command } from "../types";
 import { getBumpQueueButton } from "./bump-queue";
@@ -17,6 +18,7 @@ import { getJoinQueueButton } from "./join-queue";
 import { getLeaveQueueButton } from "./leave-queue";
 import { getQueueTitle } from "./utils";
 
+const config = getConfig();
 const defaultQueueSize = 5;
 const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
@@ -66,6 +68,7 @@ export const QueueV2: Command = {
     );
 
     await interaction.reply({
+      content: getRoleMention(config.tiltedGamersRoleId),
       embeds: [embed],
       components: [embedActions],
     });
