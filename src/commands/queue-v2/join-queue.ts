@@ -82,7 +82,7 @@ export const JoinQueue: ButtonInteractionHandler = {
       }).then(async () => {
         await Promise.all(updatedQueuedUsers.map((userMention: string) => {
           const id = getNumberStringFromString(userMention);
-          return updatePoints(id, 'join');
+          return updatePoints(id, 10);
         }))
       });
     }

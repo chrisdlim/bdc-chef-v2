@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, Client, User } from "discord.js"
+import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, Client } from "discord.js"
 import { getMongoClient } from "../../database/mongo-client";
 import { numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
@@ -7,18 +7,8 @@ import { Command } from "../types";
 const client = getMongoClient();
 const pointsCollection = client.db('chef').collection('points');
 
-const PointsActionMap = {
-  'join': 10,
-  'leave': -5
-} as const
-
-export const updatePoints = async (userId: string, action: keyof typeof PointsActionMap) => {
-  const points = PointsActionMap[action];
-  return await upsertPoints(userId, points);
-}
-
-const upsertPoints = async (userId: string, points: number) => {
-  await pointsCollection.updateOne({
+export const updatePoints = (userId: string, points: number) => {
+  return pointsCollection.updateOne({
     user: userId
   }, {
     $inc: {
@@ -27,9 +17,7 @@ const upsertPoints = async (userId: string, points: number) => {
   }, {
     upsert: true
   });
-}
-
-
+};
 
 export const ListPoints: Command = {
   name: "points",
