@@ -8,8 +8,7 @@ type Config = {
   dbEndpoint: string;
   powerfulUser: string;
   tiltedGamersRoleId: string;
-  mongoUser: string;
-  mongoPw: string;
+  mongoUri: string;
 };
 
 export const getConfig = (): Config => {
@@ -20,8 +19,7 @@ export const getConfig = (): Config => {
   const dbEndpoint = process.env.DB_ENDPOINT;
   const powerfulUser = process.env.POWERFUL_USER || "";
   const tiltedGamersRoleId = process.env.TILTED_GAMERS_ROLE_ID || "";
-  const mongoUser = process.env.MONGO_USER || '';
-  const mongoPw = process.env.MONGO_PW || '';
+  const mongoUri = process.env.MONGO_URI || '';
 
   if (!token) {
     throw new SystemError("Missing discord token");
@@ -39,8 +37,8 @@ export const getConfig = (): Config => {
     throw new SystemError("Missing db endpoint");
   }
 
-  if (!mongoUser || !mongoPw) {
-    throw new SystemError('Missing mongo credentials');
+  if (!mongoUri) {
+    throw new SystemError('Missing Mongo uri');
   }
 
   return {
@@ -51,7 +49,6 @@ export const getConfig = (): Config => {
     dbEndpoint,
     powerfulUser,
     tiltedGamersRoleId,
-    mongoUser,
-    mongoPw,
+    mongoUri,
   };
 };
