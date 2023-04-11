@@ -41,7 +41,7 @@ export const ListPoints: Command = {
 
     if (userPointDocuments.length) {
       const userPoints = userPointDocuments
-        .map(({ user: id, points }) => `${getUserAsMention({ id })} - ${(+points).toLocaleString()}`);
+        .map(({ user: id, points }) => `${getUserAsMention({ id })}: ${(+points).toLocaleString()}`);
       await interaction.reply(numberedList(userPoints));
     } else {
       await interaction.reply({ content: 'No one points for any of the shitters yet.', ephemeral: true });
