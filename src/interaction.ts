@@ -12,6 +12,7 @@ import {
   findButtonHandlerByInteraction,
   findCommandByInteraction,
 } from "./commands";
+import { SystemError } from "./error/system-error";
 import { isUserMentioned } from "./utils/user";
 
 export const registerInteractions = (client: Client<true>): void => {
@@ -63,6 +64,12 @@ const handleCommand = async (
       error,
       interaction,
     });
+    if (error instanceof SystemError) {
+      await interaction.reply({
+        content: error.message,
+        ephemeral: true
+      });
+    }
   }
 };
 

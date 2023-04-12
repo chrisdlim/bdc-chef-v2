@@ -22,9 +22,14 @@ const config = getConfig();
 const defaultQueueSize = 5;
 const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
+const getMinutesInMillis = (minutes: number) => 1000 * 60 * minutes;
+
 const Options = {
   SIZE: "size",
+  TIMEOUT: 'timeout',
 };
+
+const defaultQueueTimeoutMinutes = 14.75;
 
 export const QueueV2: Command = {
   name: "q",
@@ -34,7 +39,7 @@ export const QueueV2: Command = {
       name: Options.SIZE,
       description: "Queue size",
       type: ApplicationCommandOptionType.Integer,
-    },
+    }
   ],
   run: async function (
     _client: Client<boolean>,
@@ -43,8 +48,10 @@ export const QueueV2: Command = {
     const { user } = interaction;
 
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
+
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
+
     const footerText = getFooterText(queueSize);
 
     const embed = new EmbedBuilder()
@@ -67,10 +74,17 @@ export const QueueV2: Command = {
       getBumpQueueButton(),
     );
 
-    await interaction.reply({
+    await interaction.deferReply();
+
+    await interaction.editReply({
       content: getRoleMention(config.tiltedGamersRoleId),
       embeds: [embed],
       components: [embedActions],
+    }).then(() => {
+      setTimeout(async () => {
+        console.log('Deleting queue after timeout in minutes', defaultQueueTimeoutMinutes);
+        await interaction.deleteReply();
+      }, getMinutesInMillis(defaultQueueTimeoutMinutes))
     });
   },
 };
