@@ -5,6 +5,8 @@ import {
 } from "discord.js";
 import { SystemError } from "../../error/system-error";
 import { ButtonInteractionHandler } from "../types";
+import { QueueFields } from "./fields";
+import { defaultQueueTimeoutMinutes, expireQueue, getNumberFromString } from "./utils";
 
 const id = "q2-bump";
 const label = "Bump";
@@ -23,6 +25,9 @@ export const BumpQueue: ButtonInteractionHandler = {
       message: { embeds, components },
     } = interaction;
     const [embed] = embeds;
+    const queueTimeoutFieldValue = embed.data.fields?.find(({ name }) => name === QueueFields.TIMEOUT)?.value;
+    const queueTimeout = queueTimeoutFieldValue ?
+      getNumberFromString(queueTimeoutFieldValue) : defaultQueueTimeoutMinutes;
 
     if (!embed || !embed.data.fields) {
       throw new SystemError("Welp, I don't know what to do here. Goodbye.");
@@ -32,6 +37,6 @@ export const BumpQueue: ButtonInteractionHandler = {
       content: 'bump',
       components,
       embeds
-    });
-  },
+    }).then((message) => expireQueue(message, queueTimeout));
+  }
 };

@@ -16,20 +16,17 @@ import { Command } from "../types";
 import { getBumpQueueButton } from "./bump-queue";
 import { getJoinQueueButton } from "./join-queue";
 import { getLeaveQueueButton } from "./leave-queue";
-import { getQueueTitle } from "./utils";
+import { defaultQueueTimeoutMinutes, expireQueue, getQueueTitle } from "./utils";
+import { QueueFields } from './fields';
 
 const config = getConfig();
 const defaultQueueSize = 5;
 const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
-const getMinutesInMillis = (minutes: number) => 1000 * 60 * minutes;
-
 const Options = {
   SIZE: "size",
   TIMEOUT: 'timeout',
 };
-
-const defaultQueueTimeoutMinutes = 14.75;
 
 export const QueueV2: Command = {
   name: "q",
@@ -38,6 +35,11 @@ export const QueueV2: Command = {
     {
       name: Options.SIZE,
       description: "Queue size",
+      type: ApplicationCommandOptionType.Integer,
+    },
+    {
+      name: Options.TIMEOUT,
+      description: "Queue timeout, defaults to 30 minutes",
       type: ApplicationCommandOptionType.Integer,
     }
   ],
@@ -48,6 +50,7 @@ export const QueueV2: Command = {
     const { user } = interaction;
 
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
+    const queueTimeout = interaction.options.getInteger(Options.TIMEOUT) || defaultQueueTimeoutMinutes;
 
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
@@ -60,8 +63,12 @@ export const QueueV2: Command = {
       .setTimestamp(new Date())
       .addFields(
         {
-          name: "Chefs on standby:",
+          name: QueueFields.USERS,
           value: numberedList([getUserAsMention(user)]),
+        },
+        {
+          name: QueueFields.TIMEOUT,
+          value: queueTimeout.toString() + ' minutes',
         },
       )
       .setFooter({
@@ -74,18 +81,11 @@ export const QueueV2: Command = {
       getBumpQueueButton(),
     );
 
-    await interaction.deferReply();
-
-    await interaction.editReply({
+    await interaction.reply({
       content: getRoleMention(config.tiltedGamersRoleId),
       embeds: [embed],
       components: [embedActions],
-    }).then(() => {
-      setTimeout(async () => {
-        console.log('Deleting queue after timeout in minutes', defaultQueueTimeoutMinutes);
-        await interaction.deleteReply();
-      }, getMinutesInMillis(defaultQueueTimeoutMinutes))
-    });
+    }).then((message) => expireQueue(message, queueTimeout));
   },
 };
 
