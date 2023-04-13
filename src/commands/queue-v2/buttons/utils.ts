@@ -7,11 +7,9 @@ export const getQueueButtons = (isDisabled = false) => {
   const leave = getLeaveQueueButton();
   const bump = getBumpQueueButton(isDisabled);
 
-  const base = [join, leave];
-
   if (isDisabled) {
-    return base;
+    return [leave];
   }
 
-  return base.concat(bump)
+  return [join, leave, bump];
 }
