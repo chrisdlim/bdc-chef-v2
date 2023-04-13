@@ -64,7 +64,7 @@ export const QueueV2: Command = {
       .addFields(
         {
           name: QueueFields.USERS,
-          value: numberedList([getUserAsMention(user)]),
+          value: numberedList([getUserAsMention(user), getUserAsMention({ id: '1081386980144840794' })]),
         },
         {
           name: QueueFields.TIMEOUT,

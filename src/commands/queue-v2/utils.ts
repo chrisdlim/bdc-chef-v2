@@ -1,4 +1,5 @@
 import { Message, strikethrough } from "discord.js";
+import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 
 export const getQueueTitle = (size: number, currentQueueSize: number) => {
@@ -21,14 +22,31 @@ export const getMinutesInMillis = (minutes: number) => 1000 * 60 * minutes;
 export const expireQueue = (message: Message<boolean>, timeoutMinutes: number) => {
   setTimeout(async () => {
     console.log('Disabling queue after timeout in minutes', timeoutMinutes);
-    const { embeds } = message;
+    const updatedMessage = await message.channel.messages.fetch(message.id);
+    const { embeds } = updatedMessage;
+
     const [embed] = embeds;
 
-    const [queueField, ...remainingFields] = embed.data.fields!;
+    if (!embed || !embed.data.fields) {
+      // Nothing to expire if embed fields are gone
+      console.log('No embed or embed data found, nothing to expire.');
+      return;
+    }
+
+    const [queueField, ...remainingFields] = embed.data.fields;
     const { name, value: queuedUsersStr } = queueField;
     const currentQueuedUsers = denumberList(queuedUsersStr);
-    const currentQueuedUsersStrikethrough = currentQueuedUsers.map((value) => strikethrough(value));
-    const updatedQueuedUsersNumbered = numberedList(currentQueuedUsersStrikethrough);
+    const queueSize = getNumberFromString(embed.footer?.text!);
+
+    const isQueueFull = currentQueuedUsers.length === queueSize;
+
+    if (isQueueFull) {
+      console.log('Not expiring completed queue.');
+      return;
+    }
+
+    const updatedQueueUsers = currentQueuedUsers.map((value) => strikethrough(value));
+    const updatedQueuedUsersNumbered = numberedList(updatedQueueUsers);
 
     const updatedEmbed = {
       ...embed.data,
