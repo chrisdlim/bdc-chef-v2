@@ -16,7 +16,7 @@ import { Command } from "../types";
 import { getBumpQueueButton } from "./bump-queue";
 import { getJoinQueueButton } from "./join-queue";
 import { getLeaveQueueButton } from "./leave-queue";
-import { defaultQueueTimeoutMinutes, expireQueue, getQueueTitle } from "./utils";
+import { defaultQueueTimeoutMinutes, expireQueue, getMinutesInMillis, getQueueTitle } from "./utils";
 import { QueueFields } from './fields';
 
 const config = getConfig();
@@ -81,7 +81,8 @@ export const QueueV2: Command = {
       getBumpQueueButton(),
     );
 
-    await interaction.reply({
+    await interaction.deferReply();
+    await interaction.editReply({
       content: getRoleMention(config.tiltedGamersRoleId),
       embeds: [embed],
       components: [embedActions],

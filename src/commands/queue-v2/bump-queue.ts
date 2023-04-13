@@ -33,7 +33,8 @@ export const BumpQueue: ButtonInteractionHandler = {
       throw new SystemError("Welp, I don't know what to do here. Goodbye.");
     }
 
-    await interaction.reply({
+    await interaction.deferReply();
+    await interaction.editReply({
       content: 'bump',
       components,
       embeds
