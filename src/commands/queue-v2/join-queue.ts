@@ -58,7 +58,7 @@ export const JoinQueue: ButtonInteractionHandler = {
 
     const buttonMap: { [id: string]: Function } = {
       [id]: () => getJoinQueueButton(isQueueFull),
-      [leaveQueueButtonId]: () => getLeaveQueueButton(isQueueFull),
+      [leaveQueueButtonId]: () => getLeaveQueueButton(),
     };
 
     const updatedButtons = components[0].components.map((button) =>
