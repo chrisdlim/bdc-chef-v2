@@ -4,10 +4,10 @@ import {
   ButtonInteraction,
   ButtonStyle,
   EmbedBuilder,
+  userMention
 } from "discord.js";
 import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
-import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
 import { getJoinQueueButton } from "./join-queue";
 import { getQueueTitle, getNumberFromString, expireQueue, defaultQueueTimeoutMinutes } from "./utils";
@@ -37,13 +37,13 @@ export const LeaveQueue: ButtonInteractionHandler = {
       throw new SystemError("Welp, I don't know what to do here. Goodbye.");
     }
 
-    const userMention = getUserAsMention(user);
+    const mentionedUser = userMention(user.id);
     const [queueField, ...remainingFields] = embed.data.fields;
     const { name, value: queuedUsersStr } = queueField;
     const currentQueuedUsers = denumberList(queuedUsersStr);
     const queueSize = getNumberFromString(embed.footer?.text!);
 
-    if (!currentQueuedUsers.includes(userMention)) {
+    if (!currentQueuedUsers.includes(mentionedUser)) {
       await interaction.reply({
         content:
           "You are already a dogshit bus boy, get the f out of my kitchen.",
@@ -53,7 +53,7 @@ export const LeaveQueue: ButtonInteractionHandler = {
     }
 
     const updatedQueuedUsers = currentQueuedUsers.filter(
-      (user) => user !== userMention
+      (user) => user !== mentionedUser
     );
 
     if (!updatedQueuedUsers.length) {

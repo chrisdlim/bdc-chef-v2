@@ -1,10 +1,10 @@
-import { Client, ChatInputCommandInteraction } from "discord.js";
+import { Client, ChatInputCommandInteraction, userMention } from "discord.js";
 import { getGiphyBySearch } from "../api";
 import { Gif } from "../api/giphy/types";
 import { getConfig } from "../config";
 import getRandomElement from "../utils/get-random-element";
 import { getRoleMention } from "../utils/text";
-import { getUserWithDiscriminator, getUserAsMention } from "../utils/user";
+import { getUserWithDiscriminator } from "../utils/user";
 import { QueueV2 } from "./queue-v2";
 import { Command } from "./types";
 
@@ -23,8 +23,8 @@ export const Assemble: Command = {
       await interaction.followUp(gifUrl);
     } else {
       await interaction.reply(
-        `${getUserAsMention(
-          interaction.user
+        `${userMention(
+          interaction.user.id
         )} wants to assemble! ${getRoleMention(config.tiltedGamersRoleId)}`
       );
       await QueueV2.run(_client, interaction);

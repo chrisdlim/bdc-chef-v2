@@ -3,9 +3,9 @@ import {
   ApplicationCommandType,
   ChatInputCommandInteraction,
   Client,
+  userMention,
 } from "discord.js";
 import { askChatGpt, getOpenAI } from "../api";
-import { getUserAsMention } from "../utils/user";
 import { Command } from "./types";
 
 const openai = getOpenAI();
@@ -23,7 +23,6 @@ export const AskChatGpt: Command = {
     },
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
-    const userMention = getUserAsMention(interaction.user);
     const prompt = interaction.options.getString("prompt", true);
 
     await interaction.deferReply();
@@ -31,7 +30,7 @@ export const AskChatGpt: Command = {
     const answer = await askChatGpt(openai, prompt);
 
     const promptWithAnswer = [
-      `${userMention}, you asked:`,
+      `${userMention(interaction.user.id)}, you asked:`,
       `> ${prompt.trim()}`,
       answer.trim(),
     ].join("\n");

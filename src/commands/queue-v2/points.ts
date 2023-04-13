@@ -1,7 +1,6 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, Client } from "discord.js"
+import { ApplicationCommandOptionType, ApplicationCommandType, ChatInputCommandInteraction, Client, userMention } from "discord.js"
 import { getMongoClient } from "../../database/mongo-client";
 import { numberedList } from "../../utils/text";
-import { getUserAsMention } from "../../utils/user";
 import { Command } from "../types";
 
 const client = getMongoClient();
@@ -41,7 +40,7 @@ export const ListPoints: Command = {
 
     if (userPointDocuments.length) {
       const userPoints = userPointDocuments
-        .map(({ user: id, points }) => `${getUserAsMention({ id })}: ${(+points).toLocaleString()}`);
+        .map(({ user: id, points }) => `${userMention(id)}: ${(+points).toLocaleString()}`);
       await interaction.reply(numberedList(userPoints));
     } else {
       await interaction.reply({ content: 'No one points for any of the shitters yet.', ephemeral: true });

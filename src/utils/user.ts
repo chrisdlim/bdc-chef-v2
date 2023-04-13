@@ -1,6 +1,5 @@
-import { GuildMember, Message, User } from "discord.js";
+import { Message, User } from "discord.js";
 
-export const getUserAsMention = (user: Pick<User | GuildMember, 'id'>) => `<@${user.id}>`;
 export const getUserWithDiscriminator = ({ username, discriminator }: User) =>
   `${username}${discriminator}`;
 export const isUserMentioned = (message: Message, user: User): boolean =>

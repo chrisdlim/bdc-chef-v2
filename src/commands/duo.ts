@@ -3,8 +3,8 @@ import {
   ApplicationCommandType,
   ChatInputCommandInteraction,
   Client,
+  userMention,
 } from "discord.js";
-import { getUserAsMention } from "../utils/user";
 import { Command } from "./types";
 
 export const Duo: Command = {
@@ -21,7 +21,6 @@ export const Duo: Command = {
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const user = interaction.options.getUser('user', true);
-    const userMention = getUserAsMention(user);
-    await interaction.reply(`Alright, where is my sous chef?! GET THE F IN THE KITCHEN! ${userMention}`);
+    await interaction.reply(`Alright, where is my sous chef?! GET THE F IN THE KITCHEN! ${userMention(user.id)}`);
   },
 };

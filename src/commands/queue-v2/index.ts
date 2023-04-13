@@ -8,10 +8,10 @@ import {
   ChatInputCommandInteraction,
   CacheType,
   ApplicationCommandOptionType,
+  userMention
 } from "discord.js";
 import { getConfig } from "../../config";
 import { getRoleMention, numberedList } from "../../utils/text";
-import { getUserAsMention } from "../../utils/user";
 import { Command } from "../types";
 import { getBumpQueueButton } from "./bump-queue";
 import { getJoinQueueButton } from "./join-queue";
@@ -64,7 +64,7 @@ export const QueueV2: Command = {
       .addFields(
         {
           name: QueueFields.USERS,
-          value: numberedList([getUserAsMention(user)]),
+          value: numberedList([userMention(user.id)]),
         },
         {
           name: QueueFields.TIMEOUT,

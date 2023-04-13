@@ -3,9 +3,9 @@ import {
   ApplicationCommandType,
   ChatInputCommandInteraction,
   Client,
+  userMention,
 } from "discord.js";
 import { askChatGpt, getOpenAI } from "../api";
-import { getUserAsMention } from "../utils/user";
 import { Command } from "./types";
 
 const openai = getOpenAI();
@@ -24,7 +24,6 @@ export const ToxicLine: Command = {
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const user = interaction.options.getUser("user", true);
-    const userMention = getUserAsMention(user);
 
     await interaction.deferReply();
 
@@ -32,7 +31,7 @@ export const ToxicLine: Command = {
     const insult = await askChatGpt(openai, insultPrompt);
 
     await interaction.editReply({
-      content: `${userMention}, ${insult}`,
+      content: `${userMention(user.id)}, ${insult}`,
     });
   },
 };
