@@ -1,25 +1,13 @@
-import {
-  ButtonBuilder,
-  ButtonInteraction,
-  ButtonStyle,
-} from "discord.js";
-import { SystemError } from "../../error/system-error";
-import { ButtonInteractionHandler } from "../types";
-import { QueueFields } from "./fields";
-import { defaultQueueTimeoutMinutes, expireQueue, getNumberFromString } from "./utils";
-
-const id = "q2-bump";
-const label = "Bump";
-
-export const getBumpQueueButton = () =>
-  new ButtonBuilder()
-    .setCustomId(id)
-    .setLabel(label)
-    .setStyle(ButtonStyle.Secondary);
+import { ButtonInteraction } from "discord.js";
+import { SystemError } from "../../../error/system-error";
+import { ButtonInteractionHandler } from "../../types";
+import { bumpQueueButtonId, bumpQueueLabel } from "../buttons";
+import { QueueFields } from "../fields";
+import { defaultQueueTimeoutMinutes, expireQueue, getNumberFromString } from "../utils";
 
 export const BumpQueue: ButtonInteractionHandler = {
-  id,
-  label,
+  id: bumpQueueButtonId,
+  label: bumpQueueLabel,
   run: async (interaction: ButtonInteraction) => {
     const {
       message: { embeds, components },

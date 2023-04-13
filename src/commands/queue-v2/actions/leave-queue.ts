@@ -2,27 +2,15 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonInteraction,
-  ButtonStyle,
   EmbedBuilder,
   userMention
 } from "discord.js";
-import { SystemError } from "../../error/system-error";
-import { denumberList, numberedList } from "../../utils/text";
-import { ButtonInteractionHandler } from "../types";
-import { getJoinQueueButton } from "./join-queue";
-import { getQueueTitle, getNumberFromString, expireQueue, defaultQueueTimeoutMinutes } from "./utils";
-import { id as JoinButtonId } from './join-queue';
-import { QueueFields } from "./fields";
-
-export const id = "q2-leave";
-const label = "Leave";
-
-export const getLeaveQueueButton = (isDisabled = false) =>
-  new ButtonBuilder()
-    .setCustomId(id)
-    .setLabel(label)
-    .setStyle(ButtonStyle.Danger)
-    .setDisabled(isDisabled);
+import { SystemError } from "../../../error/system-error";
+import { denumberList, numberedList } from "../../../utils/text";
+import { ButtonInteractionHandler } from "../../types";
+import { getQueueTitle, getNumberFromString, expireQueue, defaultQueueTimeoutMinutes } from "./../utils";
+import { QueueFields } from "./../fields";
+import { getQueueButtons } from "./../buttons/utils";
 
 export const LeaveQueue: ButtonInteractionHandler = {
   id: "q2-leave",
@@ -72,11 +60,15 @@ export const LeaveQueue: ButtonInteractionHandler = {
     const queueTimeout = queueTimeoutFieldValue ?
       getNumberFromString(queueTimeoutFieldValue) : defaultQueueTimeoutMinutes;
 
-    const updatedButtons = components[0].components.map((button) =>
-      button.customId === JoinButtonId
-        ? getJoinQueueButton(isQueueFull)
-        : new ButtonBuilder(button.data)
-    );
+    const updatedButtons = getQueueButtons(isQueueFull);
+    // const updatedButtons = components[0].components.map((button) =>
+    //   button.customId === JoinButtonId
+    //     ? getJoinQueueButton(isQueueFull)
+    //     : new ButtonBuilder({
+    //       ...button.data,
+    //       disabled: isQueueFull
+    //     })
+    // );
 
     const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers);
     const updatedEmbed = {

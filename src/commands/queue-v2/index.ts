@@ -13,11 +13,9 @@ import {
 import { getConfig } from "../../config";
 import { getRoleMention, numberedList } from "../../utils/text";
 import { Command } from "../types";
-import { getBumpQueueButton } from "./bump-queue";
-import { getJoinQueueButton } from "./join-queue";
-import { getLeaveQueueButton } from "./leave-queue";
 import { defaultQueueTimeoutMinutes, expireQueue, getMinutesInMillis, getQueueTitle } from "./utils";
 import { QueueFields } from './fields';
+import { getBumpQueueButton, getJoinQueueButton, getLeaveQueueButton } from "./buttons";
 
 const config = getConfig();
 const defaultQueueSize = 5;
@@ -64,7 +62,7 @@ export const QueueV2: Command = {
       .addFields(
         {
           name: QueueFields.USERS,
-          value: numberedList([userMention(user.id)]),
+          value: numberedList([userMention(user.id), userMention('1081386980144840794')]),
         },
         {
           name: QueueFields.TIMEOUT,

@@ -6,30 +6,21 @@ import {
   EmbedBuilder,
   userMention
 } from "discord.js";
-import { SystemError } from "../../error/system-error";
-import { denumberList, numberedList } from "../../utils/text";
-import { ButtonInteractionHandler } from "../types";
-import { updatePoints } from "./points";
-import { getQueueTitle, getNumberFromString, getNumberStringFromString } from "./utils";
-import { getLeaveQueueButton, id as leaveQueueButtonId } from './leave-queue';
-
-export const id = "q2-join";
-const label = "Join";
-
-export const getJoinQueueButton = (isDisabled = false) =>
-  new ButtonBuilder()
-    .setCustomId(id)
-    .setLabel(label)
-    .setStyle(ButtonStyle.Primary)
-    .setDisabled(isDisabled);
+import { SystemError } from "../../../error/system-error";
+import { denumberList, numberedList } from "../../../utils/text";
+import { ButtonInteractionHandler } from "../../types";
+import { updatePoints } from "../points";
+import { getQueueTitle, getNumberFromString, getNumberStringFromString } from "../utils";
+import { joinQueueButtonId, joinQueueLabel } from '../buttons';
+import { getQueueButtons } from "../buttons/utils";
 
 export const JoinQueue: ButtonInteractionHandler = {
-  id,
-  label,
+  id: joinQueueButtonId,
+  label: joinQueueLabel,
   run: async (interaction: ButtonInteraction) => {
     const {
       user,
-      message: { embeds, components },
+      message: { embeds },
     } = interaction;
     const [embed] = embeds;
 
@@ -56,16 +47,7 @@ export const JoinQueue: ButtonInteractionHandler = {
 
     const isQueueFull = updatedQueuedUsers.length === queueSize;
 
-    const buttonMap: { [id: string]: Function } = {
-      [id]: () => getJoinQueueButton(isQueueFull),
-      [leaveQueueButtonId]: () => getLeaveQueueButton(),
-    };
-
-    const updatedButtons = components[0].components.map((button) =>
-      button.customId && button.customId in buttonMap
-        ? buttonMap[button.customId]()
-        : new ButtonBuilder(button.data)
-    );
+    const updatedButtons = getQueueButtons(isQueueFull);
 
     const updatedEmbed = {
       ...embed.data,

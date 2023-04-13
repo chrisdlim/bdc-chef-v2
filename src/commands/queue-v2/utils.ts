@@ -1,5 +1,4 @@
 import { Message, strikethrough } from "discord.js";
-import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 
 export const getQueueTitle = (size: number, currentQueueSize: number) => {
