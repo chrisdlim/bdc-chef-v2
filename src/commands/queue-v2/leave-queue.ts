@@ -10,8 +10,9 @@ import { denumberList, numberedList } from "../../utils/text";
 import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
 import { getJoinQueueButton } from "./join-queue";
-import { getQueueTitle, getNumberFromString } from "./utils";
+import { getQueueTitle, getNumberFromString, expireQueue, defaultQueueTimeoutMinutes } from "./utils";
 import { id as JoinButtonId } from './join-queue';
+import { QueueFields } from "./fields";
 
 export const id = "q2-leave";
 const label = "Leave";
@@ -64,7 +65,12 @@ export const LeaveQueue: ButtonInteractionHandler = {
       return;
     }
 
+    const wasQueueFull = currentQueuedUsers.length === queueSize;
     const isQueueFull = updatedQueuedUsers.length === queueSize;
+
+    const queueTimeoutFieldValue = embed.data.fields?.find(({ name }) => name === QueueFields.TIMEOUT)?.value;
+    const queueTimeout = queueTimeoutFieldValue ?
+      getNumberFromString(queueTimeoutFieldValue) : defaultQueueTimeoutMinutes;
 
     const updatedButtons = components[0].components.map((button) =>
       button.customId === JoinButtonId
@@ -83,9 +89,18 @@ export const LeaveQueue: ButtonInteractionHandler = {
       new ActionRowBuilder<ButtonBuilder>().addComponents(updatedButtons);
 
     const editedEmbed = new EmbedBuilder(updatedEmbed);
-    await interaction.update({
-      embeds: [editedEmbed],
-      components: [updatedEmbedActions],
-    });
+
+    await interaction.deferReply();
+    if (wasQueueFull) {
+      await interaction.editReply({
+        embeds: [editedEmbed],
+        components: [updatedEmbedActions],
+      }).then((message) => expireQueue(message, queueTimeout));
+    } else {
+      await interaction.editReply({
+        embeds: [editedEmbed],
+        components: [updatedEmbedActions],
+      });
+    }
   },
 };
