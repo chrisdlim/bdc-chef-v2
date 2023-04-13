@@ -11,6 +11,7 @@ import { getUserAsMention } from "../../utils/user";
 import { ButtonInteractionHandler } from "../types";
 import { updatePoints } from "./points";
 import { getQueueTitle, getNumberFromString, getNumberStringFromString } from "./utils";
+import { getLeaveQueueButton, id as leaveQueueButtonId } from './leave-queue';
 
 export const id = "q2-join";
 const label = "Join";
@@ -55,14 +56,19 @@ export const JoinQueue: ButtonInteractionHandler = {
 
     const isQueueFull = updatedQueuedUsers.length === queueSize;
 
+    const buttonMap: { [id: string]: Function } = {
+      [id]: () => getJoinQueueButton(isQueueFull),
+      [leaveQueueButtonId]: () => getLeaveQueueButton(isQueueFull),
+    };
+
     const updatedButtons = components[0].components.map((button) =>
-      button.customId === id
-        ? getJoinQueueButton(isQueueFull)
+      button.customId && button.customId in buttonMap
+        ? buttonMap[button.customId]()
         : new ButtonBuilder(button.data)
     );
 
     const updatedEmbed = {
-      ...interaction.message.embeds[0].data,
+      ...embed.data,
       fields: [{ name, value: updatedQueuedUsersNumbered }, ...remainingFields],
       title: getQueueTitle(queueSize, updatedQueuedUsers.length),
     };

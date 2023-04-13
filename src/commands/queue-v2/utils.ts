@@ -1,4 +1,5 @@
-import { Message } from "discord.js";
+import { Message, strikethrough } from "discord.js";
+import { denumberList, numberedList } from "../../utils/text";
 
 export const getQueueTitle = (size: number, currentQueueSize: number) => {
   if (size === currentQueueSize) {
@@ -21,8 +22,27 @@ export const expireQueue = (message: Message<boolean>, timeoutMinutes: number) =
   setTimeout(async () => {
     console.log('Disabling queue after timeout in minutes', timeoutMinutes);
     const { embeds } = message;
+    const [embed] = embeds;
+
+    const [queueField, ...remainingFields] = embed.data.fields!;
+    const { name, value: queuedUsersStr } = queueField;
+    const currentQueuedUsers = denumberList(queuedUsersStr);
+    const currentQueuedUsersStrikethrough = currentQueuedUsers.map((value) => strikethrough(value));
+    const updatedQueuedUsersNumbered = numberedList(currentQueuedUsersStrikethrough);
+
+    const updatedEmbed = {
+      ...embed.data,
+      title: 'Queue expired',
+      fields: [
+        {
+          name,
+          value: updatedQueuedUsersNumbered
+        },
+        ...remainingFields
+      ]
+    }
     await message.edit({
-      embeds,
+      embeds: [updatedEmbed],
       components: [],
     })
   }, getMinutesInMillis(timeoutMinutes));

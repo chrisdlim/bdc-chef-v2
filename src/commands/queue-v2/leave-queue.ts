@@ -13,14 +13,15 @@ import { getJoinQueueButton } from "./join-queue";
 import { getQueueTitle, getNumberFromString } from "./utils";
 import { id as JoinButtonId } from './join-queue';
 
-const id = "q2-leave";
+export const id = "q2-leave";
 const label = "Leave";
 
-export const getLeaveQueueButton = () =>
+export const getLeaveQueueButton = (isDisabled = false) =>
   new ButtonBuilder()
     .setCustomId(id)
     .setLabel(label)
-    .setStyle(ButtonStyle.Danger);
+    .setStyle(ButtonStyle.Danger)
+    .setDisabled(isDisabled);
 
 export const LeaveQueue: ButtonInteractionHandler = {
   id: "q2-leave",
