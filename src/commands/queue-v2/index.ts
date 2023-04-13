@@ -86,6 +86,7 @@ export const QueueV2: Command = {
       content: getRoleMention(config.tiltedGamersRoleId),
       embeds: [embed],
       components: [embedActions],
+      allowedMentions: { parse: ['roles'] },
     }).then((message) => expireQueue(message, queueTimeout));
   },
 };
