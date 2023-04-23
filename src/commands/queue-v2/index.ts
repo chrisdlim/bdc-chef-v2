@@ -67,7 +67,7 @@ export const QueueV2: Command = {
         },
         {
           name: QueueFields.TIMEOUT,
-          value: queueTimeout.toString() + ' minutes',
+          value: queueTimeout.toLocaleString() + ' minutes',
         },
       )
       .setFooter({
