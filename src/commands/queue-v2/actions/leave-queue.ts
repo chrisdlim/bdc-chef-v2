@@ -61,14 +61,6 @@ export const LeaveQueue: ButtonInteractionHandler = {
       getNumberFromString(queueTimeoutFieldValue) : defaultQueueTimeoutMinutes;
 
     const updatedButtons = getQueueButtons(isQueueFull);
-    // const updatedButtons = components[0].components.map((button) =>
-    //   button.customId === JoinButtonId
-    //     ? getJoinQueueButton(isQueueFull)
-    //     : new ButtonBuilder({
-    //       ...button.data,
-    //       disabled: isQueueFull
-    //     })
-    // );
 
     const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers);
     const updatedEmbed = {
@@ -82,13 +74,14 @@ export const LeaveQueue: ButtonInteractionHandler = {
 
     const editedEmbed = new EmbedBuilder(updatedEmbed);
 
-    await interaction.deferReply();
     if (wasQueueFull) {
+      await interaction.deferReply();
       await interaction.editReply({
         embeds: [editedEmbed],
         components: [updatedEmbedActions],
       }).then((message) => expireQueue(message, queueTimeout));
     } else {
+      await interaction.deferUpdate();
       await interaction.editReply({
         embeds: [editedEmbed],
         components: [updatedEmbedActions],

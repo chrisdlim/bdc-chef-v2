@@ -16,6 +16,7 @@ import { Command } from "../types";
 import { defaultQueueTimeoutMinutes, expireQueue, getMinutesInMillis, getQueueTitle } from "./utils";
 import { QueueFields } from './fields';
 import { getBumpQueueButton, getJoinQueueButton, getLeaveQueueButton } from "./buttons";
+import { getQueueButtons } from "./buttons/utils";
 
 const config = getConfig();
 const defaultQueueSize = 5;
@@ -73,11 +74,9 @@ export const QueueV2: Command = {
         text: footerText,
       });
 
-    const embedActions = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      getJoinQueueButton(),
-      getLeaveQueueButton(),
-      getBumpQueueButton(),
-    );
+    const buttons = getQueueButtons();
+    const embedActions = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(buttons);
 
     await interaction.deferReply();
     await interaction.editReply({
