@@ -69,7 +69,7 @@ export const expireQueue = (interaction: Message<boolean>, timeoutMinutes: numbe
         embeds: [updatedEmbed],
         components: [],
       })
-    }, 5000);
+    }, getMinutesInMillis(timeoutMinutes));
   } catch (error) {
     console.log('Error expiring queue', error);
   }
