@@ -9,6 +9,7 @@ type Config = {
   powerfulUser: string;
   tiltedGamersRoleId: string;
   mongoUri: string;
+  botId: string;
 };
 
 export const getConfig = (): Config => {
@@ -20,6 +21,7 @@ export const getConfig = (): Config => {
   const powerfulUser = process.env.POWERFUL_USER || "";
   const tiltedGamersRoleId = process.env.TILTED_GAMERS_ROLE_ID || "";
   const mongoUri = process.env.MONGO_URI || '';
+  const botId = process.env.BOT_ID || '';
 
   if (!token) {
     throw new SystemError("Missing discord token");
@@ -50,5 +52,6 @@ export const getConfig = (): Config => {
     powerfulUser,
     tiltedGamersRoleId,
     mongoUri,
+    botId,
   };
 };

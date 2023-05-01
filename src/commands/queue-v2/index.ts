@@ -8,7 +8,8 @@ import {
   ChatInputCommandInteraction,
   CacheType,
   ApplicationCommandOptionType,
-  userMention
+  userMention,
+  roleMention
 } from "discord.js";
 import { getConfig } from "../../config";
 import { getRoleMention, numberedList } from "../../utils/text";
@@ -77,10 +78,15 @@ export const QueueV2: Command = {
     const buttons = getQueueButtons();
     const embedActions = new ActionRowBuilder<ButtonBuilder>()
       .addComponents(buttons);
-
+    
     await interaction.deferReply();
     await interaction.editReply({
-      content: getRoleMention(config.tiltedGamersRoleId),
+      content: roleMention(config.tiltedGamersRoleId),
+      allowedMentions: {
+        parse: ['roles']
+      }
+    });
+    await interaction.followUp({
       embeds: [embed],
       components: [embedActions],
       allowedMentions: { parse: ['roles'] },

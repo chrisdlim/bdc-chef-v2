@@ -66,7 +66,10 @@ export const JoinQueue: ButtonInteractionHandler = {
 
     if (isQueueFull) {
       await interaction.followUp({
-        content: ['OOOOOOORDER UP, We got a full french brigade!', updatedQueuedUsersNumbered].join('\n')
+        content: ['OOOOOOORDER UP, We got a full french brigade!', updatedQueuedUsersNumbered].join('\n'),
+        allowedMentions: {
+          parse: ['users']
+        }
       }).then(async () => {
         await Promise.all(updatedQueuedUsers.map((userMention: string) => {
           const id = getNumberStringFromString(userMention);

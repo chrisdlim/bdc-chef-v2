@@ -26,6 +26,6 @@ export const BumpQueue: ButtonInteractionHandler = {
       content: 'bump',
       components,
       embeds
-    }).then((message) => expireQueue(message, queueTimeout));
+    });
   }
 };
