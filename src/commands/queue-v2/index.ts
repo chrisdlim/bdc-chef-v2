@@ -90,7 +90,7 @@ export const QueueV2: Command = {
 
     // Follow up with ping
     await interaction.followUp({
-      content: `${roleMention(config.tiltedGamersRoleId)} join if ur a queue-ty pie`,
+      content: `${roleMention(config.tiltedGamersRoleId)} join if ur a queuety pie`,
       allowedMentions: {
         parse: ['roles']
       }
