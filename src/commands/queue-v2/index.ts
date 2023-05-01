@@ -80,17 +80,21 @@ export const QueueV2: Command = {
       .addComponents(buttons);
     
     await interaction.deferReply();
+
+    // Send embedded queue
     await interaction.editReply({
+      embeds: [embed],
+      components: [embedActions],
+      allowedMentions: { parse: ['roles'] },
+    }).then((message) => expireQueue(message, queueTimeout));
+
+    // Follow up with ping
+    await interaction.followUp({
       content: roleMention(config.tiltedGamersRoleId),
       allowedMentions: {
         parse: ['roles']
       }
     });
-    await interaction.followUp({
-      embeds: [embed],
-      components: [embedActions],
-      allowedMentions: { parse: ['roles'] },
-    }).then((message) => expireQueue(message, queueTimeout));
   },
 };
 
