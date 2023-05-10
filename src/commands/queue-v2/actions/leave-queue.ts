@@ -75,13 +75,14 @@ export const LeaveQueue: ButtonInteractionHandler = {
     const editedEmbed = new EmbedBuilder(updatedEmbed);
 
     if (wasQueueFull) {
-      await interaction.deferUpdate();
+      await interaction.deferReply();
       await interaction.editReply({
         embeds: [editedEmbed],
         components: [updatedEmbedActions],
       })
-      .then((message) => expireQueue(message, queueTimeout));
+        .then((message) => expireQueue(message, queueTimeout));
     } else {
+      await interaction.deferUpdate();
       await interaction.update({
         embeds: [editedEmbed],
         components: [updatedEmbedActions],
