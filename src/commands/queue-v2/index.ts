@@ -57,6 +57,8 @@ export const QueueV2: Command = {
 
     const footerText = getFooterText(queueSize);
 
+    const userAsMention = userMention(user.id);
+
     const embed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(getQueueTitle(queueSize, 1))
@@ -64,7 +66,7 @@ export const QueueV2: Command = {
       .addFields(
         {
           name: QueueFields.USERS,
-          value: numberedList([userMention(user.id)]),
+          value: numberedList([userAsMention]),
         },
         {
           name: QueueFields.TIMEOUT,
@@ -90,7 +92,7 @@ export const QueueV2: Command = {
 
     // Follow up with ping
     await interaction.followUp({
-      content: `${roleMention(config.tiltedGamersRoleId)} join if ur a queuety pie`,
+      content: `${roleMention(config.tiltedGamersRoleId)} join if ur a queuety pie -${userAsMention}`,
       allowedMentions: {
         parse: ['roles']
       }
