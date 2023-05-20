@@ -8,6 +8,7 @@ Requirements:
 - Node version at least 16
 - Discord API Key
 - Giphy API Key
+- OpenAI API key
 
 To run on local:
 Run npm install to download node packages
