@@ -18,12 +18,15 @@ import { isUserMentioned } from "./utils/user";
 export const registerInteractions = (client: Client<true>): void => {
   client.on(Events.InteractionCreate, async (interaction: Interaction) => {
     if (interaction.isChatInputCommand()) {
+      console.log('Handling ChatInputCommand', interaction);
       await handleCommand(client, interaction);
     }
     if (interaction.isAutocomplete()) {
+      console.log('Handling Autocomplete', interaction);
       await handleAutoComplete(client, interaction);
     }
     if (interaction.isButton()) {
+      console.log('Handling button click', interaction);
       await handleButtonInteraction(interaction);
     }
   });
