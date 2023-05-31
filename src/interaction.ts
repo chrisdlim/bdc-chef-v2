@@ -33,6 +33,12 @@ export const registerInteractions = (client: Client<true>): void => {
       }
     } catch (error) {
       console.log('Error handling an interaction', interaction);
+      if (interaction.isRepliable()) {
+        await interaction.reply({
+          content: `Idk what happened, something about: ${error}`,
+          ephemeral: true,
+        })
+      }
     }
   });
 
