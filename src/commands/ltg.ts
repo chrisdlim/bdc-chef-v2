@@ -15,12 +15,14 @@ export const Ltg: Command = {
   description: "Lunch Time Gamers",
   type: ApplicationCommandType.ChatInput,
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
-    await interaction.reply(
-      `${userMention(
-        interaction.user.id
-      )} looking for some gamers!!! ${getRoleMention(
-        config.tiltedGamersRoleId
-      )}`
-    );
+    await interaction.reply({
+      content:
+        `${userMention(
+          interaction.user.id
+        )} looking for some gamers!!! ${getRoleMention(
+          config.tiltedGamersRoleId
+        )}`,
+      allowedMentions: { parse: ['roles'] }
+    });
   },
 };
