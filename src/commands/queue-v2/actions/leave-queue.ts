@@ -82,7 +82,6 @@ export const LeaveQueue: ButtonInteractionHandler = {
       })
         .then((message) => expireQueue(message, queueTimeout));
     } else {
-      await interaction.deferUpdate();
       await interaction.update({
         embeds: [editedEmbed],
         components: [updatedEmbedActions],
