@@ -7,7 +7,7 @@ import {
   userMention,
 } from "discord.js";
 import { SystemError } from "../../../error/system-error";
-import { denumberList, numberedList } from "../../../utils/text";
+import { anonymousList, denumberList, numberedList } from "../../../utils/text";
 import { ButtonInteractionHandler } from "../../types";
 import { updatePoints } from "../../queue-v2/points";
 import {
@@ -17,6 +17,7 @@ import {
 } from "../../queue-v2/utils";
 import { joinQueueButtonId, joinQueueLabel } from "../buttons";
 import { getQueueButtons } from "../buttons/utils";
+import { decryptValue, encryptValue } from "../../../utils/anonymize";
 
 const getQueueFullFollowupMessage = (listOfUsers: string, isAnon = false) => {
   const users = isAnon
@@ -25,7 +26,7 @@ const getQueueFullFollowupMessage = (listOfUsers: string, isAnon = false) => {
   return ["OOOOOOORDER UP, we got a full french brigade!", users].join("\n");
 };
 
-export const JoinQueue: ButtonInteractionHandler = {
+export const AnonJoinQueue: ButtonInteractionHandler = {
   id: joinQueueButtonId,
   label: joinQueueLabel,
   run: async (interaction: ButtonInteraction) => {
@@ -43,11 +44,8 @@ export const JoinQueue: ButtonInteractionHandler = {
     const [queueField, timeoutField, anonField] = embed.data.fields;
     const timeQueueStarted = new Date(embed.timestamp!).getTime();
     const { name, value: queuedUsersStr } = queueField;
-    const isAnon = anonField.value.toLowerCase() === "yes";
-    const currentQueuedUsers = denumberList(queuedUsersStr, {
-      anonymize: isAnon,
-      time: timeQueueStarted,
-    });
+    const decryptedQueueMembers = decryptValue(anonField.value);
+    const currentQueuedUsers = denumberList(decryptedQueueMembers);
     const queueSize = getNumberFromString(embed.footer?.text!);
 
     if (currentQueuedUsers.includes(mentionedUser)) {
@@ -59,10 +57,8 @@ export const JoinQueue: ButtonInteractionHandler = {
     }
 
     const updatedQueuedUsers = [...currentQueuedUsers, mentionedUser];
-    const updatedQueuedUsersNumbered = numberedList(updatedQueuedUsers, {
-      anonymize: isAnon,
-      time: timeQueueStarted,
-    });
+    const updatedMemberList = numberedList(updatedQueuedUsers);
+    const anonymizedMembersList = anonymousList(updatedQueuedUsers);
 
     const isQueueFull = updatedQueuedUsers.length === queueSize;
 
@@ -71,9 +67,12 @@ export const JoinQueue: ButtonInteractionHandler = {
     const updatedEmbed = {
       ...embed.data,
       fields: [
-        { name, value: updatedQueuedUsersNumbered },
+        { name, value: anonymizedMembersList },
         timeoutField,
-        anonField,
+        {
+          ...anonField,
+          value: isQueueFull ? '-' : encryptValue(updatedMemberList, timeQueueStarted),
+        },
       ],
       title: getQueueTitle(queueSize, updatedQueuedUsers.length),
     };
@@ -90,10 +89,7 @@ export const JoinQueue: ButtonInteractionHandler = {
     if (isQueueFull) {
       await interaction
         .followUp({
-          content: getQueueFullFollowupMessage(
-            updatedQueuedUsersNumbered,
-            isAnon
-          ),
+          content: getQueueFullFollowupMessage(updatedMemberList),
           allowedMentions: {
             parse: ["users"],
           },

@@ -27,6 +27,14 @@ export const numberedList = (values: string[], options: ListOptions = {}) => {
     .join("\n");
 };
 
+export const anonymousList = (values: string[]) => {
+  return values
+    .map((_, index) => {
+      return `${index + 1}. Player ${index + 1}`;
+    })
+    .join("\n");
+};
+
 /**
  * @description Converts a numbered list string back to a list of strings
  * i.e. input:
