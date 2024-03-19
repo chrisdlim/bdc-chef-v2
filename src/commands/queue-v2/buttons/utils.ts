@@ -6,7 +6,7 @@ export const getQueueButtons = (isDisabled = false) => {
   const leave = getLeaveQueueButton();
 
   if (isDisabled) {
-    return [leave];
+    return [];
   }
 
   return [join, leave];
