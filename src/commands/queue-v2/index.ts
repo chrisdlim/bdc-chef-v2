@@ -102,11 +102,12 @@ export const QueueV2: Command = {
       buttons
     );
 
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
+    await interaction.editReply({ content: "zach is a dog pooper" });
 
     // Send embedded queue
-    await interaction
-      .editReply({
+    await interaction.channel
+      ?.send({
         embeds: [embed],
         components: [embedActions],
         allowedMentions: { parse: ["roles"] },
