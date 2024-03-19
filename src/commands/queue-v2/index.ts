@@ -21,6 +21,7 @@ import {
 } from "./utils";
 import { QueueFields } from "./fields";
 import { getQueueButtons } from "./buttons/utils";
+import { getUserWithDiscriminator } from "../../utils/user";
 
 const config = getConfig();
 const defaultQueueSize = 5;
@@ -103,7 +104,13 @@ export const QueueV2: Command = {
     );
 
     await interaction.deferReply({ ephemeral: true });
-    await interaction.editReply({ content: "zach is a dog pooper" });
+    await interaction.editReply({
+      content: config.powerfulUser.includes(
+        getUserWithDiscriminator(interaction.user)
+      )
+        ? "actual dog ass u are"
+        : "queue started",
+    });
 
     // Send embedded queue
     await interaction.channel
