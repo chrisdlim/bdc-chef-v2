@@ -93,7 +93,7 @@ export const QueueV2: Command = {
           value: queueTimeout.toLocaleString() + " minutes",
         },
         {
-          name: QueueFields.ANONYMOUS,
+          name: QueueFields.SECRET,
           value: isAnon ? "Yes" : "No",
         }
       )

@@ -31,7 +31,6 @@ const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 const Options = {
   SIZE: "size",
   TIMEOUT: "timeout",
-  ANONYMOUS: "anon",
 };
 
 export const AnonymousQueueV2: Command = {
@@ -86,7 +85,7 @@ export const AnonymousQueueV2: Command = {
           value: queueTimeout.toLocaleString() + " minutes",
         },
         {
-          name: QueueFields.ANONYMOUS,
+          name: QueueFields.SECRET,
           value: encryptValue(membersList, timeQueueStarted.getTime()),
         }
       )
