@@ -1,4 +1,4 @@
-import { InteractionResponse, Message, strikethrough } from "discord.js";
+import { Message, strikethrough } from "discord.js";
 import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
 
@@ -9,24 +9,31 @@ export const getQueueTitle = (size: number, currentQueueSize: number) => {
   return `Lookin' for ${size - currentQueueSize} more gamer(s)`;
 };
 
-export const getNumberStringFromString = (value: string): string => value.replace(/[^0-9]/g, "");
+export const getNumberStringFromString = (value: string): string =>
+  value.replace(/[^0-9]/g, "");
 
 export const getNumberFromString = (value: string): number => {
   return +getNumberStringFromString(value);
-}
+};
 
 export const defaultQueueTimeoutMinutes = 30;
 
 export const getMinutesInMillis = (minutes: number) => 1000 * 60 * minutes;
 
-export const expireQueue = (interaction: Message<boolean>, timeoutMinutes: number) => {
+export const expireQueue = (
+  interaction: Message<boolean>,
+  timeoutMinutes: number
+) => {
   try {
     setTimeout(async () => {
-      console.log('Reached queue expiration', { timeoutMinutes, interactionId: interaction.id });
+      console.log("Reached queue expiration", {
+        timeoutMinutes,
+        interactionId: interaction.id,
+      });
       const message = await interaction.fetch();
 
       if (!message) {
-        throw new SystemError(`Could not find message for: ${interaction}`)
+        throw new SystemError(`Could not find message for: ${interaction}`);
       }
 
       const { embeds } = message;
@@ -35,42 +42,53 @@ export const expireQueue = (interaction: Message<boolean>, timeoutMinutes: numbe
 
       if (!embed || !embed.data.fields) {
         // Nothing to expire if embed fields are gone
-        console.log('No embed or embed data found, nothing to expire.');
+        console.log("No embed or embed data found, nothing to expire.");
         return;
       }
 
-      const [queueField, ...remainingFields] = embed.data.fields;
+      const [queueField, timeField, anonField] = embed.data.fields;
+      const isAnon = anonField.value.toLowerCase() === "yes";
+      const timeQueueStarted = new Date(embed.timestamp!).getTime();
       const { name, value: queuedUsersStr } = queueField;
-      const currentQueuedUsers = denumberList(queuedUsersStr);
+      const currentQueuedUsers = denumberList(queuedUsersStr, {
+        anonymize: isAnon,
+        time: timeQueueStarted,
+      });
       const queueSize = getNumberFromString(embed.footer?.text!);
 
       const isQueueFull = currentQueuedUsers.length === queueSize;
 
       if (isQueueFull) {
-        console.log('Not expiring completed queue.');
+        console.log("Not expiring completed queue.");
         return;
       }
 
-      const updatedQueueUsers = currentQueuedUsers.map((value) => strikethrough(value));
-      const updatedQueuedUsersNumbered = numberedList(updatedQueueUsers);
+      const updatedQueueUsers = currentQueuedUsers.map((value) =>
+        strikethrough(value)
+      );
+      const updatedQueuedUsersNumbered = numberedList(updatedQueueUsers, {
+        anonymize: isAnon,
+        time: timeQueueStarted,
+      });
 
       const updatedEmbed = {
         ...embed.data,
-        title: 'Queue expired',
+        title: "Queue expired",
         fields: [
           {
             name,
-            value: updatedQueuedUsersNumbered
+            value: updatedQueuedUsersNumbered,
           },
-          ...remainingFields
-        ]
-      }
+          timeField,
+          anonField,
+        ],
+      };
       await interaction.edit({
         embeds: [updatedEmbed],
         components: [],
-      })
+      });
     }, getMinutesInMillis(timeoutMinutes));
   } catch (error) {
-    console.log('Error expiring queue', error);
+    console.log("Error expiring queue", error);
   }
-}
+};

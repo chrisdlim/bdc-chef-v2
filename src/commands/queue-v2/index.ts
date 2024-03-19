@@ -9,14 +9,17 @@ import {
   CacheType,
   ApplicationCommandOptionType,
   userMention,
-  roleMention
+  roleMention,
 } from "discord.js";
 import { getConfig } from "../../config";
-import { getRoleMention, numberedList } from "../../utils/text";
+import { numberedList } from "../../utils/text";
 import { Command } from "../types";
-import { defaultQueueTimeoutMinutes, expireQueue, getMinutesInMillis, getQueueTitle } from "./utils";
-import { QueueFields } from './fields';
-import { getBumpQueueButton, getJoinQueueButton, getLeaveQueueButton } from "./buttons";
+import {
+  defaultQueueTimeoutMinutes,
+  expireQueue,
+  getQueueTitle,
+} from "./utils";
+import { QueueFields } from "./fields";
 import { getQueueButtons } from "./buttons/utils";
 
 const config = getConfig();
@@ -25,7 +28,8 @@ const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
 const Options = {
   SIZE: "size",
-  TIMEOUT: 'timeout',
+  TIMEOUT: "timeout",
+  ANONYMOUS: "anon",
 };
 
 export const QueueV2: Command = {
@@ -41,7 +45,12 @@ export const QueueV2: Command = {
       name: Options.TIMEOUT,
       description: "Queue timeout, defaults to 30 minutes",
       type: ApplicationCommandOptionType.Integer,
-    }
+    },
+    {
+      name: Options.ANONYMOUS,
+      description: "Make the queue anonymous",
+      type: ApplicationCommandOptionType.Boolean,
+    },
   ],
   run: async function (
     _client: Client<boolean>,
@@ -50,7 +59,10 @@ export const QueueV2: Command = {
     const { user } = interaction;
 
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
-    const queueTimeout = interaction.options.getInteger(Options.TIMEOUT) || defaultQueueTimeoutMinutes;
+    const queueTimeout =
+      interaction.options.getInteger(Options.TIMEOUT) ||
+      defaultQueueTimeoutMinutes;
+    const isAnon = interaction.options.getBoolean(Options.ANONYMOUS) || false;
 
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
@@ -59,44 +71,56 @@ export const QueueV2: Command = {
 
     const userAsMention = userMention(user.id);
 
+    const timeQueueStarted = new Date();
     const embed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(getQueueTitle(queueSize, 1))
-      .setTimestamp(new Date())
+      .setTimestamp(timeQueueStarted)
       .addFields(
         {
           name: QueueFields.USERS,
-          value: numberedList([userAsMention]),
+          value: numberedList([userAsMention], {
+            anonymize: isAnon,
+            time: timeQueueStarted.getTime(),
+          }),
         },
         {
           name: QueueFields.TIMEOUT,
-          value: queueTimeout.toLocaleString() + ' minutes',
+          value: queueTimeout.toLocaleString() + " minutes",
         },
+        {
+          name: QueueFields.ANONYMOUS,
+          value: isAnon ? "Yes" : "No",
+        }
       )
       .setFooter({
         text: footerText,
       });
 
     const buttons = getQueueButtons();
-    const embedActions = new ActionRowBuilder<ButtonBuilder>()
-      .addComponents(buttons);
-    
+    const embedActions = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      buttons
+    );
+
     await interaction.deferReply();
 
     // Send embedded queue
-    await interaction.editReply({
-      embeds: [embed],
-      components: [embedActions],
-      allowedMentions: { parse: ['roles'] },
-    }).then((message) => expireQueue(message, queueTimeout));
+    await interaction
+      .editReply({
+        embeds: [embed],
+        components: [embedActions],
+        allowedMentions: { parse: ["roles"] },
+      })
+      .then((message) => expireQueue(message, queueTimeout));
 
     // Follow up with ping
     await interaction.followUp({
-      content: `${roleMention(config.tiltedGamersRoleId)} join if ur a queuety pie -${userAsMention}`,
+      content: `${roleMention(
+        config.tiltedGamersRoleId
+      )} join if ur a queuety pie ${isAnon ? "" : `-${userAsMention}`}`,
       allowedMentions: {
-        parse: ['roles']
-      }
+        parse: ["roles"],
+      },
     });
   },
 };
-
