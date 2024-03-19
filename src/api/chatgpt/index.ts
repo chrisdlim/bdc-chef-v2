@@ -1,17 +1,19 @@
-import { Configuration, CreateCompletionResponse, OpenAIApi } from "openai";
+import {
+  ChatCompletionRequestMessage,
+  Configuration,
+  CreateChatCompletionResponse,
+  CreateCompletionResponse,
+  OpenAIApi,
+} from "openai";
 import { getConfig } from "../../config";
 
 type ChatOptions = {
   model?: string;
+  role?: ChatCompletionRequestMessage["role"];
   temperature?: number;
   maxTokens?: number;
   choiceSize?: number;
 };
-
-const defaultModel = "text-davinci-003";
-const defaultTemperature = 0.5;
-const defaultMaxTokens = 1000;
-const defaultChoiceSize = 1;
 
 const config = getConfig();
 
@@ -28,34 +30,41 @@ export const getPromptAnswer = (
   prompt: string,
   options: ChatOptions = {}
 ) => {
-  const { model, temperature, maxTokens, choiceSize } = options;
+  const {
+    model = "gpt-3.5-turbo",
+    role = "system",
+    temperature = 0.5,
+    maxTokens = 1000,
+    choiceSize = 1,
+  } = options;
   return api
-    .createCompletion({
-      model: model || defaultModel,
-      prompt,
-      temperature: temperature || defaultTemperature,
-      max_tokens: maxTokens || defaultMaxTokens,
-      n: choiceSize || defaultChoiceSize,
+    .createChatCompletion({
+      messages: [{ role, content: prompt }],
+      model,
+      temperature,
+      max_tokens: maxTokens,
+      top_p: choiceSize,
     })
-    .then((response) => {
+    .then(({ data }) => {
       console.log("Received ChatGpt response...");
-      response.data.choices.forEach((choice) => {
+      data.choices.forEach((choice) => {
         console.log("Choice: ", JSON.stringify(choice));
       });
-      return response;
+      return data;
     });
 };
 
 export const getFirstPromptResponse = (
-  response: CreateCompletionResponse,
+  data: CreateChatCompletionResponse,
   defaultResponse: string
-): string => response.choices.pop()?.text || defaultResponse;
+): string => data.choices.pop()?.message?.content || defaultResponse;
 
 export const askChatGpt = async (openai: OpenAIApi, message: string) => {
   const defaultResponse = `Oops, I'm not sure how to reply, but go f yourself, shitter. Back in the kitchen please!`;
   const reply = await getPromptAnswer(openai, message)
-    .then(({ data }) => getFirstPromptResponse(data, defaultResponse))
-    .catch(() => {
+    .then((data) => getFirstPromptResponse(data, defaultResponse))
+    .catch((error) => {
+      console.log("Error from OpenAI", error);
       // Error in case of rate limit or weird openai error response
       return defaultResponse;
     });
