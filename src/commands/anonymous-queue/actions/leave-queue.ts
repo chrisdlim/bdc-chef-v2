@@ -6,7 +6,12 @@ import {
   userMention,
 } from "discord.js";
 import { SystemError } from "../../../error/system-error";
-import { anonymousList, denumberList, numberedList } from "../../../utils/text";
+import {
+  anonymousList,
+  denumberList,
+  despoil,
+  numberedList,
+} from "../../../utils/text";
 import { ButtonInteractionHandler } from "../../types";
 import {
   getQueueTitle,
@@ -33,10 +38,9 @@ export const AnonLeaveQueue: ButtonInteractionHandler = {
     }
 
     const mentionedUser = userMention(user.id);
-    const [queueField, timeoutField, anonField] = embed.data.fields;
+    const [queueField, timeoutField, secretField] = embed.data.fields;
     const timeQueueStarted = new Date(embed.timestamp!).getTime();
-    const { name, value: queuedUsersStr } = queueField;
-    const decryptedQueueMembers = decryptValue(anonField.value);
+    const decryptedQueueMembers = decryptValue(despoil(secretField.value));
     const currentQueuedUsers = denumberList(decryptedQueueMembers);
     const queueSize = getNumberFromString(embed.footer?.text!);
     if (!currentQueuedUsers.includes(mentionedUser)) {
@@ -61,26 +65,19 @@ export const AnonLeaveQueue: ButtonInteractionHandler = {
       return;
     }
 
-    const wasQueueFull = currentQueuedUsers.length === queueSize;
     const isQueueFull = updatedQueuedUsers.length === queueSize;
-
-    const queueTimeoutFieldValue = embed.data.fields?.find(
-      ({ name }) => name === QueueFields.TIMEOUT
-    )?.value;
-    const queueTimeout = queueTimeoutFieldValue
-      ? getNumberFromString(queueTimeoutFieldValue)
-      : defaultQueueTimeoutMinutes;
-
     const updatedButtons = getQueueButtons(isQueueFull);
-
     const updatedMemberList = numberedList(updatedQueuedUsers);
     const anonymizedMembersList = anonymousList(updatedQueuedUsers);
     const updatedEmbed = {
       ...embed.data,
       fields: [
-        { name, value: anonymizedMembersList },
+        { ...queueField, value: anonymizedMembersList },
         timeoutField,
-        { ...anonField, value: encryptValue(updatedMemberList, timeQueueStarted) },
+        {
+          ...secretField,
+          value: encryptValue(updatedMemberList, timeQueueStarted),
+        },
       ],
       title: getQueueTitle(queueSize, updatedQueuedUsers.length),
     };
@@ -90,19 +87,9 @@ export const AnonLeaveQueue: ButtonInteractionHandler = {
 
     const editedEmbed = new EmbedBuilder(updatedEmbed);
 
-    if (wasQueueFull) {
-      await interaction.deferReply();
-      await interaction
-        .editReply({
-          embeds: [editedEmbed],
-          components: [updatedEmbedActions],
-        })
-        .then((message) => expireQueue(message, queueTimeout));
-    } else {
-      await interaction.update({
-        embeds: [editedEmbed],
-        components: [updatedEmbedActions],
-      });
-    }
+    await interaction.update({
+      embeds: [editedEmbed],
+      components: [updatedEmbedActions],
+    });
   },
 };

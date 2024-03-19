@@ -2,6 +2,7 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   EmbedBuilder,
+  spoiler,
 } from "@discordjs/builders";
 import {
   Client,
@@ -86,7 +87,7 @@ export const AnonymousQueueV2: Command = {
         },
         {
           name: QueueFields.SECRET,
-          value: encryptValue(membersList, timeQueueStarted.getTime()),
+          value: spoiler(encryptValue(membersList, timeQueueStarted.getTime())),
         }
       )
       .setFooter({

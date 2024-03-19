@@ -7,7 +7,12 @@ import {
   userMention,
 } from "discord.js";
 import { SystemError } from "../../../error/system-error";
-import { anonymousList, denumberList, numberedList } from "../../../utils/text";
+import {
+  anonymousList,
+  denumberList,
+  despoil,
+  numberedList,
+} from "../../../utils/text";
 import { ButtonInteractionHandler } from "../../types";
 import { updatePoints } from "../../queue-v2/points";
 import {
@@ -41,10 +46,9 @@ export const AnonJoinQueue: ButtonInteractionHandler = {
     }
 
     const mentionedUser = userMention(user.id);
-    const [queueField, timeoutField, anonField] = embed.data.fields;
+    const [queueField, timeoutField, secretField] = embed.data.fields;
     const timeQueueStarted = new Date(embed.timestamp!).getTime();
-    const { name, value: queuedUsersStr } = queueField;
-    const decryptedQueueMembers = decryptValue(anonField.value);
+    const decryptedQueueMembers = decryptValue(despoil(secretField.value));
     const currentQueuedUsers = denumberList(decryptedQueueMembers);
     const queueSize = getNumberFromString(embed.footer?.text!);
 
@@ -67,11 +71,13 @@ export const AnonJoinQueue: ButtonInteractionHandler = {
     const updatedEmbed = {
       ...embed.data,
       fields: [
-        { name, value: anonymizedMembersList },
+        { ...queueField, value: anonymizedMembersList },
         timeoutField,
         {
-          ...anonField,
-          value: isQueueFull ? '-' : encryptValue(updatedMemberList, timeQueueStarted),
+          ...secretField,
+          value: isQueueFull
+            ? "-"
+            : encryptValue(updatedMemberList, timeQueueStarted),
         },
       ],
       title: getQueueTitle(queueSize, updatedQueuedUsers.length),

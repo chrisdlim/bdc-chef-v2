@@ -35,6 +35,8 @@ export const anonymousList = (values: string[]) => {
     .join("\n");
 };
 
+export const despoil = (spoilerText: string) => spoilerText.replace(/\|/gi, "");
+
 /**
  * @description Converts a numbered list string back to a list of strings
  * i.e. input:
