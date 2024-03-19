@@ -80,10 +80,13 @@ export const QueueV2: Command = {
       .addFields(
         {
           name: QueueFields.USERS,
-          value: numberedList([userAsMention], {
-            anonymize: isAnon,
-            time: timeQueueStarted.getTime(),
-          }),
+          value: numberedList(
+            [userAsMention, userMention("1081386980144840794")],
+            {
+              anonymize: isAnon,
+              time: timeQueueStarted.getTime(),
+            }
+          ),
         },
         {
           name: QueueFields.TIMEOUT,

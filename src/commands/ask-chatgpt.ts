@@ -24,11 +24,8 @@ export const AskChatGpt: Command = {
   ],
   run: async (_client: Client, interaction: ChatInputCommandInteraction) => {
     const prompt = interaction.options.getString("prompt", true);
-    console.log({ prompt })
     await interaction.deferReply();
-
     const answer = await askChatGpt(openai, prompt);
-
     const promptWithAnswer = [
       `${userMention(interaction.user.id)}, you asked:`,
       `> ${prompt.trim()}`,

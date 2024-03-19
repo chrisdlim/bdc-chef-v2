@@ -84,7 +84,7 @@ export const JoinQueue: ButtonInteractionHandler = {
     const editedEmbed = new EmbedBuilder(updatedEmbed);
     await interaction.update({
       embeds: [editedEmbed],
-      components: [updatedEmbedActions],
+      components: updatedButtons.length ? [updatedEmbedActions] : [],
     });
 
     if (isQueueFull) {
