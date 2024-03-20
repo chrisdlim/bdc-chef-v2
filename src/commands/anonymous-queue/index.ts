@@ -13,17 +13,19 @@ import {
   roleMention,
 } from "discord.js";
 import { getConfig } from "../../config";
-import { anonymousList, numberedList } from "../../utils/text";
+import { numberedList } from "../../utils/text";
 import { Command } from "../types";
 import {
   defaultQueueTimeoutMinutes,
   expireQueue,
+  getAnonName,
   getQueueTitle,
 } from "../queue-v2/utils";
 import { QueueFields } from "../queue-v2/fields";
 import { getQueueButtons } from "./buttons/utils";
 import { getUserWithDiscriminator } from "../../utils/user";
 import { encryptValue } from "../../utils/anonymize";
+import { askChatGpt, getOpenAI } from "../../api";
 
 const config = getConfig();
 const defaultQueueSize = 5;
@@ -33,6 +35,8 @@ const Options = {
   SIZE: "size",
   TIMEOUT: "timeout",
 };
+
+const openai = getOpenAI();
 
 export const AnonymousQueueV2: Command = {
   name: "qa",
@@ -63,15 +67,19 @@ export const AnonymousQueueV2: Command = {
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
 
+    const generatedName = await getAnonName(openai, interaction.user);
     const footerText = getFooterText(queueSize);
-
     const userAsMention = userMention(user.id);
-
     const timeQueueStarted = new Date();
-    // const botUserMention = userMention("1081386980144840794");
-    const members = [userAsMention];
-    const membersList = numberedList(members);
-    const anonymizedMembersList = anonymousList(members);
+    const botUserMention = userMention("1081386980144840794");
+    const botGeneratedName = await getAnonName(openai, {
+      username: "bdc-chef-bot",
+    } as any);
+    const memberMap = new Map();
+    // memberMap.set(generatedName, userAsMention);
+    memberMap.set(botUserMention, botGeneratedName);
+    const memberNames = Array.from(memberMap.values());
+    const anonymizedMembersStr = numberedList(memberNames);
     const embed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(getQueueTitle(queueSize, 1))
@@ -79,7 +87,7 @@ export const AnonymousQueueV2: Command = {
       .addFields(
         {
           name: QueueFields.USERS,
-          value: anonymizedMembersList,
+          value: anonymizedMembersStr,
         },
         {
           name: QueueFields.TIMEOUT,
@@ -87,7 +95,12 @@ export const AnonymousQueueV2: Command = {
         },
         {
           name: QueueFields.SECRET,
-          value: spoiler(encryptValue(membersList, timeQueueStarted.getTime())),
+          value: spoiler(
+            encryptValue(
+              JSON.stringify(Object.fromEntries(memberMap)),
+              timeQueueStarted.getTime()
+            )
+          ),
         }
       )
       .setFooter({

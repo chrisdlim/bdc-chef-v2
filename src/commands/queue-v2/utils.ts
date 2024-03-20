@@ -1,6 +1,8 @@
-import { Message, strikethrough } from "discord.js";
+import { Message, strikethrough, User } from "discord.js";
 import { SystemError } from "../../error/system-error";
 import { denumberList, numberedList } from "../../utils/text";
+import { OpenAIApi } from "openai";
+import { askChatGpt } from "../../api";
 
 export const getQueueTitle = (size: number, currentQueueSize: number) => {
   if (size === currentQueueSize) {
@@ -91,4 +93,8 @@ export const expireQueue = (
   } catch (error) {
     console.log("Error expiring queue", error);
   }
+};
+
+export const getAnonName = (openai: OpenAIApi, user: User) => {
+  return askChatGpt(openai, `generate a funny name using ${user.username}`);
 };

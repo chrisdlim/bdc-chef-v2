@@ -1,8 +1,7 @@
-import { ActionRowBuilder } from "@discordjs/builders";
+import { ActionRowBuilder, spoiler } from "@discordjs/builders";
 import {
   ButtonBuilder,
   ButtonInteraction,
-  ButtonStyle,
   EmbedBuilder,
   userMention,
 } from "discord.js";
@@ -19,17 +18,14 @@ import {
   getQueueTitle,
   getNumberFromString,
   getNumberStringFromString,
+  getAnonName,
 } from "../../queue-v2/utils";
 import { joinQueueButtonId, joinQueueLabel } from "../buttons";
 import { getQueueButtons } from "../buttons/utils";
 import { decryptValue, encryptValue } from "../../../utils/anonymize";
+import { askChatGpt, getOpenAI } from "../../../api";
 
-const getQueueFullFollowupMessage = (listOfUsers: string, isAnon = false) => {
-  const users = isAnon
-    ? numberedList(denumberList(listOfUsers, { anonymize: isAnon }))
-    : listOfUsers;
-  return ["OOOOOOORDER UP, we got a full french brigade!", users].join("\n");
-};
+const openai = getOpenAI();
 
 export const AnonJoinQueue: ButtonInteractionHandler = {
   id: joinQueueButtonId,
@@ -48,11 +44,14 @@ export const AnonJoinQueue: ButtonInteractionHandler = {
     const mentionedUser = userMention(user.id);
     const [queueField, timeoutField, secretField] = embed.data.fields;
     const timeQueueStarted = new Date(embed.timestamp!).getTime();
-    const decryptedQueueMembers = decryptValue(despoil(secretField.value));
-    const currentQueuedUsers = denumberList(decryptedQueueMembers);
+    const decryptedQueueMembersJsonStr = decryptValue(
+      despoil(secretField.value)
+    );
+    const memberMap = new Map(Object.entries(decryptedQueueMembersJsonStr));
+    const currentQueuedMemberNames = Array.from(memberMap.values());
     const queueSize = getNumberFromString(embed.footer?.text!);
 
-    if (currentQueuedUsers.includes(mentionedUser)) {
+    if (memberMap.has(mentionedUser)) {
       await interaction.reply({
         content: "You are already a master chef",
         ephemeral: true,
@@ -60,27 +59,31 @@ export const AnonJoinQueue: ButtonInteractionHandler = {
       return;
     }
 
-    const updatedQueuedUsers = [...currentQueuedUsers, mentionedUser];
-    const updatedMemberList = numberedList(updatedQueuedUsers);
-    const anonymizedMembersList = anonymousList(updatedQueuedUsers);
-
-    const isQueueFull = updatedQueuedUsers.length === queueSize;
-
+    const generatedName = await getAnonName(openai, interaction.user);
+    memberMap.set(mentionedUser, generatedName);
+    const updatedMemberNames = [...currentQueuedMemberNames, generatedName];
+    const anonymizedMembersStr = numberedList(updatedMemberNames);
+    const isQueueFull = updatedMemberNames.length === queueSize;
     const updatedButtons = getQueueButtons(isQueueFull);
 
     const updatedEmbed = {
       ...embed.data,
       fields: [
-        { ...queueField, value: anonymizedMembersList },
+        { ...queueField, value: anonymizedMembersStr },
         timeoutField,
         {
           ...secretField,
           value: isQueueFull
             ? "-"
-            : encryptValue(updatedMemberList, timeQueueStarted),
+            : spoiler(
+                encryptValue(
+                  JSON.stringify(Object.fromEntries(memberMap)),
+                  timeQueueStarted
+                )
+              ),
         },
       ],
-      title: getQueueTitle(queueSize, updatedQueuedUsers.length),
+      title: getQueueTitle(queueSize, updatedMemberNames.length),
     };
 
     const updatedEmbedActions =
@@ -93,16 +96,20 @@ export const AnonJoinQueue: ButtonInteractionHandler = {
     });
 
     if (isQueueFull) {
+      const memberUserIds = Array.from(memberMap.keys());
       await interaction
         .followUp({
-          content: getQueueFullFollowupMessage(updatedMemberList),
+          content: [
+            "OOOOOOORDER UP, we got a full french brigade!",
+            numberedList(memberUserIds),
+          ].join("\n"),
           allowedMentions: {
             parse: ["users"],
           },
         })
         .then(async () => {
           await Promise.all(
-            updatedQueuedUsers.map((userMention: string) => {
+            memberUserIds.map((userMention: string) => {
               const id = getNumberStringFromString(userMention);
               return updatePoints(id, 10);
             })

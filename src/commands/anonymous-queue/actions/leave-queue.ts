@@ -3,6 +3,7 @@ import {
   ButtonBuilder,
   ButtonInteraction,
   EmbedBuilder,
+  spoiler,
   userMention,
 } from "discord.js";
 import { SystemError } from "../../../error/system-error";
@@ -18,11 +19,15 @@ import {
   getNumberFromString,
   expireQueue,
   defaultQueueTimeoutMinutes,
+  getAnonName,
 } from "./../../queue-v2/utils";
 import { QueueFields } from "./../../queue-v2/fields";
 import { getQueueButtons } from "./../buttons/utils";
 import { leaveQueueButtonId, leaveQueueLabel } from "../buttons";
 import { decryptValue, encryptValue } from "../../../utils/anonymize";
+import { getOpenAI } from "../../../api";
+
+const openai = getOpenAI();
 
 export const AnonLeaveQueue: ButtonInteractionHandler = {
   id: leaveQueueButtonId,
@@ -40,10 +45,14 @@ export const AnonLeaveQueue: ButtonInteractionHandler = {
     const mentionedUser = userMention(user.id);
     const [queueField, timeoutField, secretField] = embed.data.fields;
     const timeQueueStarted = new Date(embed.timestamp!).getTime();
-    const decryptedQueueMembers = decryptValue(despoil(secretField.value));
-    const currentQueuedUsers = denumberList(decryptedQueueMembers);
+    const decryptedQueueMembersJsonStr = decryptValue(
+      despoil(secretField.value)
+    );
+    const memberMap = new Map(Object.entries(decryptedQueueMembersJsonStr));
+    const currentQueuedMemberUserIds = Array.from(memberMap.keys());
     const queueSize = getNumberFromString(embed.footer?.text!);
-    if (!currentQueuedUsers.includes(mentionedUser)) {
+
+    if (!currentQueuedMemberUserIds.includes(mentionedUser)) {
       await interaction.reply({
         content:
           "You are already a dogshit bus boy, get the f out of my kitchen.",
@@ -52,11 +61,9 @@ export const AnonLeaveQueue: ButtonInteractionHandler = {
       return;
     }
 
-    const updatedQueuedUsers = currentQueuedUsers.filter(
-      (user) => user !== mentionedUser
-    );
+    memberMap.delete(mentionedUser);
 
-    if (!updatedQueuedUsers.length) {
+    if (!memberMap.size) {
       await interaction.update({
         content: "Kitchen is closed! Everyone left the queue.",
         embeds: [],
@@ -65,21 +72,27 @@ export const AnonLeaveQueue: ButtonInteractionHandler = {
       return;
     }
 
-    const isQueueFull = updatedQueuedUsers.length === queueSize;
+    const updatedMemberNames = Array.from(memberMap.values());
+    const anonymizedMembersStr = numberedList(updatedMemberNames);
+    const isQueueFull = memberMap.size === queueSize;
     const updatedButtons = getQueueButtons(isQueueFull);
-    const updatedMemberList = numberedList(updatedQueuedUsers);
-    const anonymizedMembersList = anonymousList(updatedQueuedUsers);
+
     const updatedEmbed = {
       ...embed.data,
       fields: [
-        { ...queueField, value: anonymizedMembersList },
+        { ...queueField, value: anonymizedMembersStr },
         timeoutField,
         {
           ...secretField,
-          value: encryptValue(updatedMemberList, timeQueueStarted),
+          value: spoiler(
+            encryptValue(
+              JSON.stringify(Object.fromEntries(memberMap)),
+              timeQueueStarted
+            )
+          ),
         },
       ],
-      title: getQueueTitle(queueSize, updatedQueuedUsers.length),
+      title: getQueueTitle(queueSize, updatedMemberNames.length),
     };
 
     const updatedEmbedActions =
