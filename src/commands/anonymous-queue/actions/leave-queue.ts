@@ -7,21 +7,9 @@ import {
   userMention,
 } from "discord.js";
 import { SystemError } from "../../../error/system-error";
-import {
-  anonymousList,
-  denumberList,
-  despoil,
-  numberedList,
-} from "../../../utils/text";
+import { despoil, numberedList } from "../../../utils/text";
 import { ButtonInteractionHandler } from "../../types";
-import {
-  getQueueTitle,
-  getNumberFromString,
-  expireQueue,
-  defaultQueueTimeoutMinutes,
-  getAnonName,
-} from "./../../queue-v2/utils";
-import { QueueFields } from "./../../queue-v2/fields";
+import { getQueueTitle, getNumberFromString } from "./../../queue-v2/utils";
 import { getQueueButtons } from "./../buttons/utils";
 import { leaveQueueButtonId, leaveQueueLabel } from "../buttons";
 import { decryptValue, encryptValue } from "../../../utils/anonymize";

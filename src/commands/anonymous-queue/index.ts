@@ -25,7 +25,7 @@ import { QueueFields } from "../queue-v2/fields";
 import { getQueueButtons } from "./buttons/utils";
 import { getUserWithDiscriminator } from "../../utils/user";
 import { encryptValue } from "../../utils/anonymize";
-import { askChatGpt, getOpenAI } from "../../api";
+import { getOpenAI } from "../../api";
 
 const config = getConfig();
 const defaultQueueSize = 5;
@@ -71,13 +71,13 @@ export const AnonymousQueueV2: Command = {
     const footerText = getFooterText(queueSize);
     const userAsMention = userMention(user.id);
     const timeQueueStarted = new Date();
-    const botUserMention = userMention("1081386980144840794");
-    const botGeneratedName = await getAnonName(openai, {
-      username: "bdc-chef-bot",
-    } as any);
+    // const botUserMention = userMention("1081386980144840794");
+    // const botGeneratedName = await getAnonName(openai, {
+    //   username: "bdc-chef-bot",
+    // } as any);
     const memberMap = new Map();
-    // memberMap.set(generatedName, userAsMention);
-    memberMap.set(botUserMention, botGeneratedName);
+    memberMap.set(generatedName, userAsMention);
+    // memberMap.set(botUserMention, botGeneratedName);
     const memberNames = Array.from(memberMap.values());
     const anonymizedMembersStr = numberedList(memberNames);
     const embed = new EmbedBuilder()
