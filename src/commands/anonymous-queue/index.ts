@@ -76,7 +76,7 @@ export const AnonymousQueueV2: Command = {
     //   username: "bdc-chef-bot",
     // } as any);
     const memberMap = new Map();
-    memberMap.set(generatedName, userAsMention);
+    memberMap.set(userAsMention, generatedName);
     // memberMap.set(botUserMention, botGeneratedName);
     const memberNames = Array.from(memberMap.values());
     const anonymizedMembersStr = numberedList(memberNames);

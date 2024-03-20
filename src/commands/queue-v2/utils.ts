@@ -96,5 +96,5 @@ export const expireQueue = (
 };
 
 export const getAnonName = (openai: OpenAIApi, user: User) => {
-  return askChatGpt(openai, `generate a funny name using ${user.username}`);
+  return askChatGpt(openai, `generate a funny name that doesnt use ${user.username}`);
 };
