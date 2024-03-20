@@ -13,9 +13,6 @@ import { getQueueTitle, getNumberFromString } from "./../../queue-v2/utils";
 import { getQueueButtons } from "./../buttons/utils";
 import { leaveQueueButtonId, leaveQueueLabel } from "../buttons";
 import { decryptValue, encryptValue } from "../../../utils/anonymize";
-import { getOpenAI } from "../../../api";
-
-const openai = getOpenAI();
 
 export const AnonLeaveQueue: ButtonInteractionHandler = {
   id: leaveQueueButtonId,

@@ -59,7 +59,7 @@ export const AnonJoinQueue: ButtonInteractionHandler = {
       return;
     }
 
-    const generatedName = await getAnonName(openai, interaction.user);
+    const generatedName = await getAnonName(openai);
     memberMap.set(mentionedUser, generatedName);
     const updatedMemberNames = [...currentQueuedMemberNames, generatedName];
     const anonymizedMembersStr = numberedList(updatedMemberNames);

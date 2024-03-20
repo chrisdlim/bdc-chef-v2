@@ -67,7 +67,7 @@ export const AnonymousQueueV2: Command = {
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
 
-    const generatedName = await getAnonName(openai, interaction.user);
+    const generatedName = await getAnonName(openai);
     const footerText = getFooterText(queueSize);
     const userAsMention = userMention(user.id);
     const timeQueueStarted = new Date();
