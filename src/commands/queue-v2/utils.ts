@@ -96,5 +96,5 @@ export const expireQueue = (
 };
 
 export const getAnonName = (openai: OpenAIApi) => {
-  return askChatGpt(openai, `Generate a funny chef name`);
+  return askChatGpt(openai, `Give me a single random celebrity name`);
 };
