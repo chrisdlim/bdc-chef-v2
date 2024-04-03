@@ -33,7 +33,7 @@ export const getPromptAnswer = (
   const {
     model = "gpt-3.5-turbo",
     role = "system",
-    temperature = 0.5,
+    temperature = .8,
     maxTokens = 1000,
     choiceSize = 1,
   } = options;
