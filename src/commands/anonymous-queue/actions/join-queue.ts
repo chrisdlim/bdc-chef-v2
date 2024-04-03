@@ -7,8 +7,6 @@ import {
 } from "discord.js";
 import { SystemError } from "../../../error/system-error";
 import {
-  anonymousList,
-  denumberList,
   despoil,
   numberedList,
 } from "../../../utils/text";
@@ -23,7 +21,7 @@ import {
 import { joinQueueButtonId, joinQueueLabel } from "../buttons";
 import { getQueueButtons } from "../buttons/utils";
 import { decryptValue, encryptValue } from "../../../utils/anonymize";
-import { askChatGpt, getOpenAI } from "../../../api";
+import { getOpenAI } from "../../../api";
 
 const openai = getOpenAI();
 
@@ -59,7 +57,7 @@ export const AnonJoinQueue: ButtonInteractionHandler = {
       return;
     }
 
-    const generatedName = await getAnonName(openai);
+    const generatedName = await getAnonName(openai, currentQueuedMemberNames);
     memberMap.set(mentionedUser, generatedName);
     const updatedMemberNames = [...currentQueuedMemberNames, generatedName];
     const anonymizedMembersStr = numberedList(updatedMemberNames);

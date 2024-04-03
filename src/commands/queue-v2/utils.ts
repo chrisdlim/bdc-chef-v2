@@ -95,6 +95,10 @@ export const expireQueue = (
   }
 };
 
-export const getAnonName = (openai: OpenAIApi) => {
-  return askChatGpt(openai, `Give me a single random celebrity name`);
+export const getAnonName = (openai: OpenAIApi, currentNames?: string[]) => {
+  const basePrompt = 'Give me a single random celebrity name';
+  if (currentNames?.length) {
+    return askChatGpt(openai, `${basePrompt} that\'s not in this list: ${currentNames.join(', ')}`);
+  }
+  return askChatGpt(openai, basePrompt);
 };
