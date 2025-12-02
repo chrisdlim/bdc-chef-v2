@@ -73,12 +73,6 @@ export const AnonymousQueueV2: Command = {
     const userAsMention = userMention(user.id);
     const memberMap = new Map();
     memberMap.set(userAsMention, generatedName);
-    // const botUserMention = userMention("1081386980144840794");
-    // const botUserMention2 = userMention("1080585921893773352");
-    // const botGeneratedName = await getAnonName(openai);
-    // const botGeneratedName2 = await getAnonName(openai);
-    // memberMap.set(botUserMention, botGeneratedName);
-    // memberMap.set(botUserMention2, botGeneratedName2);
     const memberNames = Array.from(memberMap.values());
     const anonymizedMembersStr = numberedList(memberNames);
     const embed = new EmbedBuilder()

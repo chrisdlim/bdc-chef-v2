@@ -39,7 +39,7 @@ export const commands: Command[] = [
   AskChatGpt,
   Duo,
   ListPoints,
-  AnonymousQueueV2,
+  // AnonymousQueueV2,
 ];
 
 export const buttonHandlers: ButtonInteractionHandler[] = [

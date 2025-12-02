@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
 } from "@discordjs/builders";
 import {
+  AutocompleteInteraction,
   Client,
   ChatInputCommandInteraction,
   CacheType,
@@ -30,12 +31,36 @@ const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 const Options = {
   SIZE: "size",
   TIMEOUT: "timeout",
-  ANONYMOUS: "anon",
+  GAME: "game",
 };
+
+const gameChoices = [
+  { name: "Valorant", value: "Valorant" },
+  { name: "League of Legends", value: "League of Legends" },
+  { name: "PUBG", value: "PUBG" },
+  { name: "Counter-Strike 2", value: "Counter-Strike 2" },
+  { name: "Anything", value: "Anything" },
+  { name: "Other", value: "Other" },
+];
 
 export const QueueV2: Command = {
   name: "q",
   description: "Assemble a french brigade",
+  handleAutoComplete: async (interaction: AutocompleteInteraction) => {
+    const focusedValue = interaction.options.getFocused().toLowerCase();
+
+    const filtered = gameChoices.filter((choice) =>
+      choice.name.toLowerCase().includes(focusedValue) ||
+      choice.value.toLowerCase().includes(focusedValue)
+    );
+
+    // If user typed something not in the list, add their input as an option
+    if (focusedValue && !filtered.some((c) => c.value.toLowerCase() === focusedValue)) {
+      filtered.unshift({ name: focusedValue, value: focusedValue });
+    }
+
+    await interaction.respond(filtered.slice(0, 25));
+  },
   options: [
     {
       name: Options.SIZE,
@@ -48,10 +73,11 @@ export const QueueV2: Command = {
       type: ApplicationCommandOptionType.Integer,
     },
     {
-      name: Options.ANONYMOUS,
-      description: "Make the queue anonymous",
-      type: ApplicationCommandOptionType.Boolean,
-    },
+      name: Options.GAME,
+      description: "Game to play",
+      type: ApplicationCommandOptionType.String,
+      autocomplete: true,
+    }
   ],
   run: async function (
     _client: Client<boolean>,
@@ -63,14 +89,12 @@ export const QueueV2: Command = {
     const queueTimeout =
       interaction.options.getInteger(Options.TIMEOUT) ||
       defaultQueueTimeoutMinutes;
-    const isAnon = interaction.options.getBoolean(Options.ANONYMOUS) || false;
-
     const queueSize =
       inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
 
     const footerText = getFooterText(queueSize);
-
     const userAsMention = userMention(user.id);
+    const gameChoice = interaction.options.getString(Options.GAME) || "im lonely and want to play anything";
 
     const timeQueueStarted = new Date();
     const embed = new EmbedBuilder()
@@ -83,19 +107,18 @@ export const QueueV2: Command = {
           value: numberedList(
             [userAsMention],
             {
-              anonymize: isAnon,
               time: timeQueueStarted.getTime(),
             }
           ),
         },
         {
+          name: QueueFields.GAME,
+          value: gameChoice.toString(),
+        },
+        {
           name: QueueFields.TIMEOUT,
           value: queueTimeout.toLocaleString() + " minutes",
         },
-        {
-          name: QueueFields.SECRET,
-          value: isAnon ? "Yes" : "No",
-        }
       )
       .setFooter({
         text: footerText,
@@ -128,7 +151,7 @@ export const QueueV2: Command = {
     await interaction.followUp({
       content: `${roleMention(
         config.tiltedGamersRoleId
-      )} join if ur a queuety pie ${isAnon ? "" : `-${userAsMention}`}`,
+      )} join if ur a queuety pie -${userAsMention}`,
       allowedMentions: {
         parse: ["roles"],
       },
