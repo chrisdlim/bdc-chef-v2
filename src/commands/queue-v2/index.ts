@@ -25,7 +25,22 @@ import { getQueueButtons } from "./buttons/utils";
 import { getUserWithDiscriminator } from "../../utils/user";
 
 const config = getConfig();
-const defaultQueueSize = 5;
+const GAME_CHOICES = [
+  "Valorant",
+  "League of Legends",
+  "PUBG",
+  "Counter-Strike 2",
+  "Anything",
+  "Other",
+];
+const getDefaultQueueSize = (game: typeof GAME_CHOICES[number]) => {
+  switch (game) {
+    case "PUBG":
+      return 4;
+    default:
+      return 5;
+  }
+};
 const getFooterText = (queueSize: number) => `${queueSize} chefs for hire!`;
 
 const Options = {
@@ -34,32 +49,23 @@ const Options = {
   GAME: "game",
 };
 
-const gameChoices = [
-  { name: "Valorant", value: "Valorant" },
-  { name: "League of Legends", value: "League of Legends" },
-  { name: "PUBG", value: "PUBG" },
-  { name: "Counter-Strike 2", value: "Counter-Strike 2" },
-  { name: "Anything", value: "Anything" },
-  { name: "Other", value: "Other" },
-];
-
 export const QueueV2: Command = {
   name: "q",
   description: "Assemble a french brigade",
   handleAutoComplete: async (interaction: AutocompleteInteraction) => {
     const focusedValue = interaction.options.getFocused().toLowerCase();
 
-    const filtered = gameChoices.filter((choice) =>
-      choice.name.toLowerCase().includes(focusedValue) ||
-      choice.value.toLowerCase().includes(focusedValue)
+    const filtered = GAME_CHOICES.filter((choice) =>
+      choice.toLowerCase().includes(focusedValue) ||
+      choice.toLowerCase().includes(focusedValue)
     );
 
     // If user typed something not in the list, add their input as an option
-    if (focusedValue && !filtered.some((c) => c.value.toLowerCase() === focusedValue)) {
-      filtered.unshift({ name: focusedValue, value: focusedValue });
+    if (focusedValue && !filtered.some((c) => c.toLowerCase() === focusedValue)) {
+      filtered.unshift(focusedValue);
     }
 
-    await interaction.respond(filtered.slice(0, 25));
+    await interaction.respond(filtered.slice(0, 25).map((choice) => ({ name: choice, value: choice })));
   },
   options: [
     {
@@ -85,16 +91,16 @@ export const QueueV2: Command = {
   ): Promise<void> {
     const { user } = interaction;
 
+    const gameChoice = interaction.options.getString(Options.GAME) || "im lonely and want to play anything";
     const inputQueueSize = interaction.options.getInteger(Options.SIZE);
     const queueTimeout =
       interaction.options.getInteger(Options.TIMEOUT) ||
       defaultQueueTimeoutMinutes;
     const queueSize =
-      inputQueueSize && inputQueueSize > 1 ? inputQueueSize : defaultQueueSize;
+      inputQueueSize && inputQueueSize > 1 ? inputQueueSize : getDefaultQueueSize(gameChoice);
 
     const footerText = getFooterText(queueSize);
     const userAsMention = userMention(user.id);
-    const gameChoice = interaction.options.getString(Options.GAME) || "im lonely and want to play anything";
 
     const timeQueueStarted = new Date();
     const embed = new EmbedBuilder()
