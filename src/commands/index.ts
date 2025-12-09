@@ -22,6 +22,14 @@ import { Assemble } from "./assemble";
 import { ListPoints } from "./queue-v2/points";
 import { AnonymousQueueV2 } from "./anonymous-queue";
 import { JoinQueue, LeaveQueue } from "./queue-v2/actions";
+import { Bet } from "./bet";
+import {
+  ChooseOption1,
+  ChooseOption2,
+  CloseBet,
+  CompleteBet1,
+  CompleteBet2,
+} from "./bet/actions";
 
 export const commands: Command[] = [
   Test,
@@ -39,6 +47,7 @@ export const commands: Command[] = [
   AskChatGpt,
   Duo,
   ListPoints,
+  Bet,
   // AnonymousQueueV2,
 ];
 
@@ -47,6 +56,11 @@ export const buttonHandlers: ButtonInteractionHandler[] = [
   LeaveQueue,
   AnonJoinQueue,
   AnonLeaveQueue,
+  ChooseOption1,
+  ChooseOption2,
+  CloseBet,
+  CompleteBet1,
+  CompleteBet2,
 ];
 
 export const registerApplicationCommands = (client: Client<true>) => {

@@ -107,10 +107,21 @@ const handleButtonInteraction = async (interaction: ButtonInteraction) => {
 
   const handler = findButtonHandlerByInteraction(customId);
   if (!handler) {
-    console.log("Oops, could not find handler for button id", customId);
-    await interaction.deferUpdate();
+    await interaction.reply({
+      content: `Oops, could not find handler for that button: ${customId}`,
+      ephemeral: true,
+    });
     return;
   }
 
-  await handler.run(interaction);
+  try {
+    await handler.run(interaction);
+  } catch (error: any) {
+    // Ignore "Unknown interaction" errors (code 10062) - happens when users click too fast
+    if (error?.code === 10062) {
+      return;
+    }
+    throw error;
+  }
 };
+
