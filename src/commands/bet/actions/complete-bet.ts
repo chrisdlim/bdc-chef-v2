@@ -62,6 +62,7 @@ const handleCompleteBet = async (
   console.log("Option 2 users:", option2Users);
   
   const prompt = findFieldByName(embed.data.fields, BetFields.PROMPT);
+  const wager = findFieldByName(embed.data.fields, BetFields.WAGER);
 
   const winningLabel = winningOption === 1 ? option1Label : option2Label;
   const winners = winningOption === 1 ? option1Users : option2Users;
@@ -71,36 +72,47 @@ const handleCompleteBet = async (
   console.log("Winners:", winners);
   console.log("Losers:", losers);
 
+  const resultFields = [
+    {
+      name: BetFields.PROMPT,
+      value: prompt,
+      inline: false,
+    },
+    {
+      name: "🏆 Result",
+      value: `**${winningLabel}**`,
+      inline: false,
+    },
+    {
+      name: `✅ Winners (${winners.length})`,
+      value: formatUserList(winners),
+      inline: true,
+    },
+    {
+      name: `❌ Losers (${losers.length})`,
+      value: formatUserList(losers),
+      inline: true,
+    },
+    {
+      name: BetFields.STATUS,
+      value: BetStatus.COMPLETED,
+      inline: false,
+    },
+  ];
+
+  // Add wager field if it exists
+  if (wager) {
+    resultFields.splice(1, 0, {
+      name: BetFields.WAGER,
+      value: wager,
+      inline: false,
+    });
+  }
+
   const resultEmbed = new EmbedBuilder()
     .setTitle("🎰 Wager - Results Are In!")
     .setColor(0x00ff00) // Green for completed
-    .addFields(
-      {
-        name: BetFields.PROMPT,
-        value: prompt,
-        inline: false,
-      },
-      {
-        name: "🏆 Winning Option",
-        value: `**${winningLabel}**`,
-        inline: false,
-      },
-      {
-        name: `✅ Winners (${winners.length})`,
-        value: formatUserList(winners),
-        inline: true,
-      },
-      {
-        name: `❌ Losers (${losers.length})`,
-        value: formatUserList(losers),
-        inline: true,
-      },
-      {
-        name: BetFields.STATUS,
-        value: BetStatus.COMPLETED,
-        inline: false,
-      }
-    )
+    .addFields(resultFields)
     .setTimestamp();
 
   await interaction.update({
@@ -111,9 +123,10 @@ const handleCompleteBet = async (
   // Announce the results
   const winnersStr = winners.length > 0 ? winners.join(", ") : "No one";
   const losersStr = losers.length > 0 ? losers.join(", ") : "No one";
+  const wagerStr = wager ? `\n💰 Stakes: **${wager}**` : "";
   
   await interaction.followUp({
-    content: `🎉 **The bet is complete!**\n\n**"${prompt}"**\n\n🏆 **${winningLabel}** wins!\n\n✅ Winners: ${winnersStr}\n❌ Losers: ${losersStr}`,
+    content: `🎉 **The bet is complete!**\n\n**"${prompt}"**${wagerStr}\n\n🏆 Result: **${winningLabel}**\n\n✅ Winners: ${winnersStr}\n❌ Losers: ${losersStr}`,
     allowedMentions: { parse: ["users"] },
   });
 };
